@@ -1,29 +1,14 @@
 <template>
   <div id="app">
-    <h1>{{ message }}</h1>
+    <router-view></router-view> <!-- To tutaj zostanie załadowany widok HomeView -->
   </div>
 </template>
 
 <script>
-import apiClient from './services/api';
-
 export default {
-  data() {
-    return {
-      message: '',
-    };
-  },
-  async created() {
-    try {
-      const response = await apiClient.get('/example-endpoint');
-      this.message = response.data.message;
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  },
+  name: 'App',
 };
 </script>
-
 
 <style>
 #app {
