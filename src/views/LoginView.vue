@@ -36,7 +36,7 @@ export default {
                 })
                 const token = response.data.token
                 localStorage.setItem('jwtToken', token)
-                this.$router.push('/') // Przekieruj do strony głównej
+                this.$router.push('/menu') // Przekieruj do strony głównej
             } catch(error) {
                 this.error = 'Błąd logowania. Sprawdź dane logowania.'
             }
