@@ -29,19 +29,21 @@ export default {
     },
     methods: {
         async login() {
-            try{
-                const response = await apiClient.post('/auth/login', {
-                    username: this.username,
-                    password: this.password,
-                })
-                const token = response.data.token
-                localStorage.setItem('jwtToken', token)
-                this.$router.push('/menu') // Przekieruj do strony głównej
-            } catch(error) {
-                this.error = 'Błąd logowania. Sprawdź dane logowania.'
-            }
-        },
+  try {
+    // Wysyłaj zapytanie na pełny URL, aby upewnić się, że zapytanie trafia do właściwego miejsca
+    const response = await apiClient.post('/Auth/login', {
+      email: this.username,
+      password: this.password,
+    });
+
+    const token = response.data.token;
+    localStorage.setItem('jwtToken', token); // Zapisz token w localStorage
+    this.$router.push('/menu'); // Przekieruj do strony menu po zalogowaniu
+  } catch (error) {
+    this.error = 'Błąd logowania. Sprawdź dane logowania.';
+    console.error('Błąd logowania:', error);
+  }
+},
     },
-    name: 'LoginView'
 }
 </script>
