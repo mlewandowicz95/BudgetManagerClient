@@ -1,13 +1,13 @@
 <template>
     <div class="transaction-list">
-      <h3>Recent Transactions</h3>
+      <h3>Ostatnie transakcje</h3>
       <ul>
         <li v-for="(transaction, index) in transactions" :key="index" :class="transaction.typeClass">
           <div>
-            <p><strong>Date:</strong> {{ transaction.formattedDate }}</p>
-            <p><strong>Amount:</strong> {{ transaction.formattedAmount }}</p>
-            <p><strong>Category:</strong> {{ transaction.categoryName }}</p>
-            <p><strong>Description:</strong> {{ transaction.description }}</p>
+            <p><strong>Data:</strong> {{ transaction.formattedDate }}</p>
+            <p><strong>Kwota:</strong> {{ transaction.formattedAmount }}</p>
+            <p><strong>Kategoria:</strong> {{ transaction.categoryName }}</p>
+            <p><strong>Opis:</strong> {{ transaction.description }}</p>
           </div>
         </li>
       </ul>

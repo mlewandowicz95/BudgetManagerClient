@@ -1,5 +1,6 @@
 import apiClient from './config';
 import Transaction from '@/models/Transaction';
+import Goal from "@/models/Goal";
 
 export const login = async (credentials) => {
   try {
@@ -28,17 +29,23 @@ export const register = async (userData) => {
   }
 };
 
+
+
+
 export const fetchDashboardData = async () => {
   try {
-    const response = await apiClient.get('/Dashboard/dashboard');
+    const response = await apiClient.get("/Dashboard/dashboard");
+    const rawData = response.data;
 
     return {
-      ...response.data,
-      recentTransactions: response.data.recentTransactions.map(
-        (tx) => new Transaction(tx)
-      ),
+      totalIncome: rawData.totalIncome,
+      totalExpenses: rawData.totalExpenses,
+      balance: rawData.balance,
+      recentTransactions: rawData.recentTransactions.map(tx => new Transaction(tx)),
+      savingGoals: rawData.savingGoals.map(goal => new Goal(goal)),
     };
   } catch (error) {
+    console.error("Error in fetchDashboardData:", error);
     throw error.response ? error.response.data : error;
   }
 };

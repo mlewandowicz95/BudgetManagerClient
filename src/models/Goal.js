@@ -1,37 +1,28 @@
-export default class Goal {
-    constructor({ Name, TargetAmount, CurrentProgress, DueDate }) {
-      this.name = Name;
-      this.targetAmount = TargetAmount;
-      this.savedAmount = CurrentProgress;
-      this.dueDate = new Date(DueDate);
-    }
-  
-    getProgressPercentage() {
-      return ((this.currentProgress / this.targetAmount) * 100).toFixed(2); // Procent realizacji
-    }
-  
-    isCompleted() {
-      return this.currentProgress >= this.targetAmount;
-    }
+export default class SavingGoal {
+  constructor({ name, targetAmount, currentProgress, progressPercentage, dueDate, isCloseToCompletion }) {
+    this.name = name;
+    this.targetAmount = targetAmount;
+    this.currentProgress = currentProgress;
+    this.progressPercentage = progressPercentage;
+    this.dueDate = new Date(dueDate);
+    this.isCloseToCompletion = isCloseToCompletion;
+  }
 
-    // Formatowanie kwoty docelowej
-    get formattedTargetAmount() {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(this.targetAmount);
-    }
-  
-    // Formatowanie zaoszczędzonej kwoty
-    get formattedSavedAmount() {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(this.savedAmount);
-    }
-  
-    // Obliczanie procentu postępu
-    get progressPercentage() {
-      return ((this.savedAmount / this.targetAmount) * 100).toFixed(2);
-    }
-  
-    // Formatowanie daty realizacji
-    get formattedDueDate() {
-      return this.dueDate.toLocaleDateString();
-    }
+  get formattedDueDate() {
+    return this.dueDate.toLocaleDateString();
+  }
+
+  get formattedTargetAmount() {
+    return new Intl.NumberFormat("pl-PL", {
+      style: "currency",
+      currency: "PLN",
+    }).format(this.targetAmount);
   }
   
+  get formattedCurrentProgress() {
+    return new Intl.NumberFormat("pl-PL", {
+      style: "currency",
+      currency: "PLN",
+    }).format(this.currentProgress);
+  }
+}

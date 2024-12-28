@@ -4,12 +4,12 @@
     <!-- Sekcja podsumowania finansowego -->
     <div class="dashboard-summary">
       <div class="summary-item">
-        <h3>Total Income</h3>
-        <p>{{ formatCurrency(dashboardData.totalIncome) }}</p>
+        <h3 class="red">Wydatki</h3>
+        <p>{{ formatCurrency(dashboardData.totalExpenses) }}</p>
       </div>
       <div class="summary-item">
-        <h3>Total Expenses</h3>
-        <p>{{ formatCurrency(dashboardData.totalExpenses) }}</p>
+        <h3>Wpływy</h3>
+        <p>{{ formatCurrency(dashboardData.totalIncome) }}</p>
       </div>
       <div class="summary-item">
         <h3>Balance</h3>
@@ -50,9 +50,10 @@ export default {
     };
   },
   async created() {
-    try {
+    try { 
       // Pobieranie danych z API
       const data = await fetchDashboardData();
+      console.log("Dashboard data in component:", data);
       this.dashboardData = data;
     } catch (error) {
       console.error("Error fetching dashboard data:", error);

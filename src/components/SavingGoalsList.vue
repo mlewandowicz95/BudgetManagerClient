@@ -1,14 +1,14 @@
 <template>
     <div class="saving-goals-list">
-      <h3>Saving Goals</h3>
+      <h3>Cele oszczędnościowe</h3>
       <ul v-if="goals.length > 0">
         <li v-for="(goal, index) in goals" :key="index">
           <div class="goal-details">
             <h4>{{ goal.name }}</h4>
-            <p><strong>Target:</strong> {{ goal.formattedTargetAmount }}</p>
-            <p><strong>Saved:</strong> {{ goal.formattedSavedAmount }}</p>
-            <p><strong>Due Date:</strong> {{ goal.formattedDueDate }}</p>
-            <p><strong>Progress:</strong> {{ goal.progressPercentage }}%</p>
+            <p><strong>Do zebrania:</strong> {{ goal.formattedTargetAmount }}</p>
+            <p><strong>Zaoszczędzono:</strong> {{ goal.formattedCurrentProgress }}</p>
+            <p><strong>Data wygaśnięcia:</strong> {{ goal.formattedDueDate }}</p>
+            <p><strong>Progres:</strong> {{ goal.progressPercentage }}%</p>
           </div>
           <progress
             :value="goal.savedAmount"
@@ -16,7 +16,7 @@
           ></progress>
         </li>
       </ul>
-      <p v-else>No saving goals available.</p>
+      <p v-else>Brak utworzonych celi.</p>
     </div>
   </template>
   
