@@ -22,5 +22,13 @@ export default class Transaction {
     get typeClass() {
       return this.type === "Expense" ? "transaction-expense" : "transaction-income";
     }
+
+    isIncome() {
+      return this.type === "Income";
+    }
+  
+    isExpense() {
+      return this.type === "Expense";
+    }
   }
   

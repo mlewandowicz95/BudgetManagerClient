@@ -1,63 +1,61 @@
 <template>
     <header class="app-header">
-        <div class="logo">
-            <img src="@/assets/logo.png"  alt="Budget Manager Logo"/>
-        </div>
-        <nav class="menu">
-            <ul>
-                <li v-if="isAuthenticated">
-                    <router-link to="/dashboard">Pulpit</router-link>
-                </li>
-                <li v-if="isAuthenticated">
-                    <router-link to="/history">Historia</router-link>
-                </li>
-                <li v-if="isAuthenticated">
-                    <router-link to="/profile">Profil</router-link>
-                </li>
-                <li v-if="isAuthenticated">
-                    <router-link to="/settings">Ustawienia</router-link>
-                </li>
-                <li v-if="isAdmin">
-                    <router-link to="/admin">Panel administracyjny</router-link>
-                </li>
-            </ul>
-        </nav>
-        <div class="actions">
-            <p v-if="isAuthenticated" class="user-info">Witaj, {{ userEmail }}</p>
-            <LogoutButton v-if="isAuthenticated" />
-        </div>
+      <div class="logo">
+        <img src="@/assets/logo.png" alt="Budget Manager Logo" />
+      </div>
+      <nav class="menu">
+        <ul>
+          <li v-if="isAuthenticated">
+            <router-link to="/dashboard">Pulpit</router-link>
+          </li>
+          <li v-if="isAuthenticated">
+            <router-link to="/history">Historia</router-link>
+          </li>
+          <li v-if="isAuthenticated">
+            <router-link to="/profile">Profil</router-link>
+          </li>
+          <li v-if="isAuthenticated">
+            <router-link to="/settings">Ustawienia</router-link>
+          </li>
+          <li v-if="isAuthenticated && isAdmin">
+            <router-link to="/admin">Panel administracyjny</router-link>
+          </li>
+        </ul>
+      </nav>
+      <div class="actions">
+        <p v-if="isAuthenticated" class="user-info">Witaj, {{ user?.email }}</p>
+        <button @click="logout">Wyloguj się</button>
+      </div>
     </header>
-</template>
-
-<script>
-import LogoutButton from './LogoutButton.vue';
-console.log('Header loaded');
-
-export default {
-    name: "HeaderDefault",
-    components: {
-        LogoutButton,
+  </template>
+  
+  <script>
+  import { useUserStore } from '@/stores/userStore';
+  
+  export default {
+    name: 'HeaderDefault',
+    setup() {
+      const userStore = useUserStore();
+  
+      const logout = () => {
+        userStore.logout();
+        window.location.href = '/'; // Przekierowanie na stronę główną
+      };
+  
+      return {
+        user: userStore.user,
+        isAuthenticated: userStore.isAuthenticated,
+        isAdmin: userStore.isAdmin,
+        logout,
+      };
     },
-    computed: {
-        isAuthenticated() {
-            return !!localStorage.getItem("jwtToken");
-        },
-        isAdmin() {
-            const userRole = localStorage.getItem("userRole");
-            return userRole === "Admin";
-        },
-        userEmail() {
-            return localStorage.getItem("userEmail") || "Nieznany użytkownik";
-        }
-    },
-};
-
-</script>
+  };
+  </script>
 
 <style scoped>
 .app-header {
     display: flex;
-  justify-content:center;
+  justify-content:space-between;
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid black;

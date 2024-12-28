@@ -1,11 +1,11 @@
 <template>
   <div>
-    <form @submit.prevent="login">
+    <form @submit.prevent="handleLogin">
       <div>
-        <input class="input-data" id="username"  v-model="username" type="text" required placeholder="Adres e-mail" />
+        <input class="input-data" id="username" v-model="username" type="text" required placeholder="Adres e-mail" />
       </div>
       <div>
-        <input class="input-data" id="password" v-model="password" type="password" required placeholder="Hasło"/>
+        <input class="input-data" id="password" v-model="password" type="password" required placeholder="Hasło" />
       </div>
       <button class="button-login" type="submit">Zaloguj się</button>
     </form>
@@ -15,8 +15,10 @@
 
 <script>
 import { login } from '@/api/authApi';
+import { useUserStore } from '@/stores/userStore';
 
 export default {
+  name: 'LoginView',
   data() {
     return {
       username: '',
@@ -25,35 +27,30 @@ export default {
     };
   },
   methods: {
-    async login() {
+    async handleLogin() {
+      const userStore = useUserStore();
+
       try {
         const response = await login({
           email: this.username,
           password: this.password,
         });
 
-        console.log('Login response:', response);
+        // Ustaw token i dane użytkownika w Pinia
+        userStore.setToken(response.token);
+        userStore.setUser(response.user);
 
-        // Zapis tokena do localStorage
-        const token = response.token;
-        if (!token) {
-          throw new Error('Brak tokena w odpowiedzi z serwera.');
-        }
-        localStorage.setItem('jwtToken', token);
+        // Zapisz token w localStorage, aby przetrwał odświeżenie
+        localStorage.setItem('jwtToken', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
 
-        const userRole = response.user.role;
-        localStorage.setItem("userRole", userRole);
-
-        const userEmail = response.user.email;
-        localStorage.setItem("userEmail", userEmail);
-        
-        // Przekierowanie po zalogowaniu
+        // Przekierowanie na dashboard
         this.$router.push('/dashboard');
       } catch (error) {
-        // Obsługa błędów
         this.error =
+          error.response?.data?.message ||
           error.message ||
-          (error.response?.message || 'Błąd logowania. Sprawdź dane logowania.');
+          'Błąd logowania. Sprawdź dane logowania.';
         console.error('Błąd logowania:', error);
       }
     },

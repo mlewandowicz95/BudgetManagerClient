@@ -1,10 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useUserStore } from "@/stores/userStore";
+
 //import AppLayout from '@/layouts/AppLayout.vue';
 import HomeView from '@/views/HomeView.vue';
 import LoginView from '@/views/LoginView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import DashboardView from '@/views/DashboardView.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import ProfileView from "@/views/ProfileView.vue";
 
 
 const routes = [
@@ -39,6 +42,18 @@ const routes = [
       }
     ]
   },
+  {
+    path: '/profile',
+    component: AppLayout,
+    meta: {requiresAuth: true},
+    children: [
+      {
+        path: "",
+        name: "Profile",
+        component: ProfileView,
+      }
+    ]
+  }
 ];
 
 const router = createRouter({
@@ -46,20 +61,25 @@ const router = createRouter({
   routes,
 });
 
-// Guard sprawdzający autoryzację
-// Sprawdzanie autoryzacji przed każdą trasą
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem("jwtToken"); // Sprawdzenie obecności tokena
+  const userStore = useUserStore();
 
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    // Jeśli trasa wymaga autoryzacji, a użytkownik nie jest zalogowany
-    next({
-      path: "/", // Przekierowanie na stronę główną
-      query: { message: "Proszę się zalogować, aby uzyskać dostęp." }, // Wiadomość dla użytkownika
-    });
-  } else {
-    next(); // Kontynuuj trasę
+
+  if (!userStore.isAuthenticated) {
+    userStore.initializeUser();
   }
+
+ 
+  if (userStore.isAuthenticated && (to.name === "Home" || to.name === "Login" || to.name === "Register")) {
+    return next({ name: "Dashboard" });
+  }
+
+  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+    return next({ name: "Login" });
+  }
+
+  
+  next();
 });
 
 export default router;

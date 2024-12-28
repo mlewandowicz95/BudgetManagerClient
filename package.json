@@ -11,6 +11,7 @@
     "axios": "^1.7.9",
     "core-js": "^3.8.3",
     "cross-spawn": "^7.0.6",
+    "pinia": "^2.3.0",
     "postcss": "^8.4.49",
     "vue": "^3.2.13",
     "vue-router": "^4.5.0"
@@ -24,24 +25,24 @@
     "eslint": "^8.57.1",
     "eslint-plugin-vue": "^8.7.1"
   },
-"eslintConfig": {
-  "root": true,
-  "env": {
-    "node": true
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "@babel/eslint-parser"
+    },
+    "rules": {
+      "vue/no-unused-vars": "warn",
+      "no-console": "warn",
+      "no-debugger": "warn"
+    }
   },
-  "extends": [
-    "plugin:vue/vue3-essential",
-    "eslint:recommended"
-  ],
-  "parserOptions": {
-    "parser": "@babel/eslint-parser"
-  },
-  "rules": {
-    "vue/no-unused-vars": "warn",
-    "no-console": "warn",
-    "no-debugger": "warn"
-  }
-},
   "browserslist": [
     "> 1%",
     "last 2 versions",

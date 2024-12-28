@@ -27,6 +27,7 @@
 </template>
 
 <script>
+
 import { fetchDashboardData } from "@/api/authApi";
 import TransactionList from "@/components/TransactionList.vue";
 import SavingGoalsList from "@/components/SavingGoalsList.vue";

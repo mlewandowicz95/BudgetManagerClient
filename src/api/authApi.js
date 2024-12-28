@@ -42,3 +42,4 @@ export const fetchDashboardData = async () => {
     throw error.response ? error.response.data : error;
   }
 };
+

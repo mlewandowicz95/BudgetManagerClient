@@ -6,6 +6,14 @@ export default class Goal {
       this.dueDate = new Date(DueDate);
     }
   
+    getProgressPercentage() {
+      return ((this.currentProgress / this.targetAmount) * 100).toFixed(2); // Procent realizacji
+    }
+  
+    isCompleted() {
+      return this.currentProgress >= this.targetAmount;
+    }
+
     // Formatowanie kwoty docelowej
     get formattedTargetAmount() {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(this.targetAmount);
