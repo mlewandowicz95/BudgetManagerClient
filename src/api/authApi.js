@@ -1,35 +1,44 @@
 import apiClient from './config';
+import Transaction from '@/models/Transaction';
 
-const login = async (credentials) => {
+export const login = async (credentials) => {
   try {
     const response = await apiClient.post('/Auth/login', credentials);
     return response.data;
   } catch (error) {
-    throw error.response ? error.response.data : error;
+    throw error.response ? error.response.data : { message: 'An unexpected error occurred' };
   }
 };
 
-const logout = async () => {
-    try{
-        const response = await apiClient.post('/Auth/logout');
-        return response.data;
-    } catch(error) {
-        throw error.response ? error.response.data : error;
-    }
-}
+export const logout = async () => {
+  try {
+    const response = await apiClient.post('/Auth/logout');
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: 'An unexpected error occurred' };
+  }
+};
 
-const register = async (userData) => {
+export const register = async (userData) => {
   try {
     const response = await apiClient.post('/Auth/register', userData);
     return response.data;
   } catch (error) {
-    throw error.response ? error.response.data : error;
+    throw error.response ? error.response.data : { message: 'An unexpected error occurred' };
   }
 };
 
+export const fetchDashboardData = async () => {
+  try {
+    const response = await apiClient.get('/Dashboard/dashboard');
 
-export default {
-  login,
-  logout,
-  register,
+    return {
+      ...response.data,
+      recentTransactions: response.data.recentTransactions.map(
+        (tx) => new Transaction(tx)
+      ),
+    };
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
 };
