@@ -17,6 +17,11 @@
       </div>
     </div>
 
+    <!--Sekcja "Dodaj cel"-->
+    <div class="add-goal-section">
+      <button @click="onAddGoalClick" class="add-goal-button">Dodaj cel</button>
+    </div>
+
     <!-- Sekcja list transakcji i celów oszczędnościowych -->
     <div class="dashboard-lists">
       <TransactionList :transactions="dashboardData.recentTransactions" />
@@ -60,6 +65,9 @@ export default {
     }
   },
   methods: {
+    onAddGoalClick(){
+      console.log("Dodaj cel kliknięty");
+    },
     formatCurrency(value) {
       return new Intl.NumberFormat("pl-PL", {
         style: "currency",
@@ -91,6 +99,23 @@ export default {
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-goal-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.add-goal-button {
+  padding: 10px 20px;
+  font-size: 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .dashboard-lists {
