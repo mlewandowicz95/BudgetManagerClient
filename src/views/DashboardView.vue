@@ -1,6 +1,11 @@
 <template>
-
   <div class="dashboard-container">
+    <div class="add-goal-section">
+      <button @click="onAddGoalClick" class="add-goal-button">Dodaj wpływ</button>
+      <button @click="onAddGoalClick" class="add-goal-button">Dodaj wydatek</button>
+      <button @click="onAddGoalClick" class="add-goal-button">Dodaj cel</button>
+    </div>
+
     <!-- Sekcja podsumowania finansowego -->
     <div class="dashboard-summary">
       <div class="summary-item">
@@ -15,11 +20,10 @@
         <h3>Balance</h3>
         <p>{{ formatCurrency(dashboardData.balance) }}</p>
       </div>
-    </div>
-
-    <!--Sekcja "Dodaj cel"-->
-    <div class="add-goal-section">
-      <button @click="onAddGoalClick" class="add-goal-button">Dodaj cel</button>
+      <div class="summary-item">
+        <h3>Okres</h3>
+        <p>{{currentMonth }}</p>
+      </div>
     </div>
 
     <!-- Sekcja list transakcji i celów oszczędnościowych -->
@@ -27,24 +31,31 @@
       <TransactionList :transactions="dashboardData.recentTransactions" />
       <SavingGoalsList :goals="dashboardData.savingGoals" />
     </div>
-  </div>
 
+    <!-- Wykres słupkowy poziomy -->
+  <!--  <HorizontalBarChart v-if="dataReady" :categories="categories" :totals="totals" /> -->
+  </div>
 </template>
 
 <script>
-
-import { fetchDashboardData } from "@/api/authApi";
+import { expensesByCategory, fetchDashboardData } from "@/api/authApi";
 import TransactionList from "@/components/TransactionList.vue";
 import SavingGoalsList from "@/components/SavingGoalsList.vue";
+//import HorizontalBarChart from "@/components/charts/HorizontalBarChart.vue";
 
 export default {
   name: "DashboardView",
   components: {
     TransactionList,
     SavingGoalsList,
+   // HorizontalBarChart,
   },
   data() {
     return {
+      currentMonth: "",
+      categories: [],
+      totals: [],
+      dataReady: false,
       dashboardData: {
         totalIncome: 0,
         totalExpenses: 0,
@@ -54,18 +65,32 @@ export default {
       },
     };
   },
+  async mounted() {
+    try {
+
+      const now = new Date();
+    this.currentMonth = now.toLocaleDateString("pl-PL", {
+      year: "numeric",
+      month: "long",
+    });
+      const data = await expensesByCategory();
+      this.categories = data.map((item) => item.category);
+      this.totals = data.map((item) => item.totalAmount);
+      this.dataReady = true; // Dane są gotowe
+    } catch (error) {
+      console.error("Error fetching expenses by category.", error);
+    }
+  },
   async created() {
-    try { 
-      // Pobieranie danych z API
+    try {
       const data = await fetchDashboardData();
-      console.log("Dashboard data in component:", data);
       this.dashboardData = data;
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     }
   },
   methods: {
-    onAddGoalClick(){
+    onAddGoalClick() {
       console.log("Dodaj cel kliknięty");
     },
     formatCurrency(value) {
@@ -103,19 +128,16 @@ export default {
 
 .add-goal-section {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-bottom: 20px;
 }
 
 .add-goal-button {
+  margin: 10px;
   padding: 10px 20px;
   font-size: 20px;
-  background-color: #4caf50;
-  color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
 .dashboard-lists {
@@ -123,4 +145,6 @@ export default {
   justify-content: space-between;
   gap: 20px;
 }
+
+
 </style>

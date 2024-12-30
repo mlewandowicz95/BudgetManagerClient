@@ -50,3 +50,18 @@ export const fetchDashboardData = async () => {
   }
 };
 
+export const expensesByCategory = async () => {
+  try {
+    const response = await apiClient.get("/Dashboard/dashboard/expenses-by-category");
+    const rawData = response.data;
+
+  
+    return rawData.map(item => ({
+      category: item.category,
+      totalAmount: item.totalAmount,
+    }));
+  } catch (error) {
+    console.error("Error in expensesByCategory:", error);
+    throw error.response ? error.response.data : error;
+  }
+};

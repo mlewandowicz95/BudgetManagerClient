@@ -8,6 +8,9 @@ import RegisterView from '@/views/RegisterView.vue';
 import DashboardView from '@/views/DashboardView.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import ProfileView from "@/views/ProfileView.vue";
+import HistoryView from '@/views/HistoryView.vue';
+import SettingsView from '@/views/SettingsView.vue';
+import AdminView from '@/views/admin/AdminView.vue';
 
 
 const routes = [
@@ -53,7 +56,43 @@ const routes = [
         component: ProfileView,
       }
     ]
-  }
+  },
+  {
+    path: '/history',
+    component: AppLayout,
+    meta: {requiresAuth: true},
+    children: [
+      {
+        path: "",
+        name: "History",
+        component: HistoryView,
+      }
+    ]
+  },
+  {
+    path: '/settings',
+    component: AppLayout,
+    meta: {requiresAuth: true},
+    children: [
+      {
+        path: "",
+        name: "Settings",
+        component: SettingsView,
+      }
+    ]
+  },
+  {
+    path: '/admin',
+    component: AppLayout,
+    meta: {requiresAuth: true},
+    children: [
+      {
+        path: "",
+        name: "Admin",
+        component: AdminView,
+      }
+    ]
+  },
 ];
 
 const router = createRouter({

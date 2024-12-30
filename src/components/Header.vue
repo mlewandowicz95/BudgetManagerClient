@@ -76,7 +76,7 @@
 }
 
 .menu li {
-  margin: 0;
+  margin: 0 50px;
 }
 
 .menu a {
@@ -88,6 +88,8 @@
 
 .menu a:hover {
   text-decoration: underline;
+  text-decoration-color:#00b5f8;
+  text-decoration-thickness: 2px;
 }
 
 
