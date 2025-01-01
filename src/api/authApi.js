@@ -29,6 +29,19 @@ export const register = async (userData) => {
   }
 };
 
+export const getAllTransaction = async (params) => {
+  try{
+    const response = await apiClient.get('Transaction', { params });
+    const rawData = response.data;
+    return rawData;
+  } catch(error) {
+    throw {
+      message: error.response?.data?.message || 'An unexpected error occurred',
+      status: error.response?.status || 500,
+    };
+  }
+}
+
 
 
 
@@ -49,6 +62,7 @@ export const fetchDashboardData = async () => {
     throw error.response ? error.response.data : error;
   }
 };
+
 
 export const expensesByCategory = async () => {
   try {
