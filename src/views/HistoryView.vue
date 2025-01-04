@@ -74,7 +74,8 @@
   
   
   <script>
-  import { getAllTransaction, getCategories } from "@/api/authApi";
+  import { getAllTransaction } from "@/api/authApi";
+  import { getCategories } from "@/api/categoryApi";
 
   
   export default {
