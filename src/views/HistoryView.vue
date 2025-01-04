@@ -1,31 +1,40 @@
 <template>
     <div class="filters">
-        <select v-model="filters.type">
-            <option value="">Wszystkie typy</option>
-            <option value="income">Przychody</option>
-            <option value="expense">Wydatki</option>
-        </select>
+      <select v-model="filters.type">
+        <option value="">Wszystkie typy</option>
+        <option value="income">Przychody</option>
+        <option value="expense">Wydatki</option>
+      </select>
+  
+      <select v-model="filters.categoryId" v-if="categories.length > 0">
+  <option value="">Wszystkie kategorie</option>
+  <option v-for="category in categories" :key="category.id" :value="category.id">
+    {{ category.name }}
+  </option>
+</select>
+<div v-else>Ładowanie kategorii</div>
 
-        <input 
-            type="date"
-            v-model="filters.startDate"
-            placeholder="Początek zakresu dat"
-        />
-
-        <input 
-            type="date"
-            v-model="filters.endDate"
-            placeholder="Koniec zakresu dat"
-        />
-
-        <input
+      <input 
+        type="date"
+        v-model="filters.startDate"
+        placeholder="Początek zakresu dat"
+      />
+  
+      <input 
+        type="date"
+        v-model="filters.endDate"
+        placeholder="Koniec zakresu dat"
+      />
+  
+      <input
         type="text"
         v-model="filters.description"
         placeholder="Szukaj w opisie"
       />
-
-    <button @click="fetchFilteredTransactions">Filtruj</button>
+  
+      <button @click="fetchFilteredTransactions">Filtruj</button>
     </div>
+  
     <div class="transaction-list">
       <h3>Transakcje</h3>
       <div v-if="loading">Ładowanie danych...</div>
@@ -63,106 +72,113 @@
     </div>
   </template>
   
+  
   <script>
-  import { getAllTransaction } from "@/api/authApi";
+  import { getAllTransaction, getCategories } from "@/api/authApi";
+
   
   export default {
     data() {
       return {
         transactions: [],
+        categories: [],
         currentPage: 1,
         totalPages: 0,
         loading: true,
         error: null,
         filters: {
-            type: "",
-            startDate: "",
-            endDate: "",
-            description: "",
+          type: "",
+          categoryId: "",
+          startDate: "",
+          endDate: "",
+          description: "",
         },
       };
     },
+
     async created() {
-        try{
-            this.loading = true;
-            await this.fetchFilteredTransactions();
-        } catch(error){
-            this.error = "Wystąpił błąd podczas inicjalizacji danych.";
-        }
-        finally{
-            this.loading = false;
-        }
-
+      try {
+        await Promise.all([this.fetchCategories(), this.fetchFilteredTransactions()]);
+      } catch (error) {
+        this.error = "Wystąpił błąd podczas inicjalizacji danych.";
+      } finally {
+        this.loading = false;
+      }
     },
-    methods: {
-        getTransactionTypeLabel(type) {
-    const typeLabels = {
-      Income: "Przychód",
-      Expense: "Wydatek",
-    };
-    return typeLabels[type] || "Nieznany typ";
-  },
-        async fetchFilteredTransactions() {
-            console.log("Aktualny filtr typu:", this.filters.type); // Sprawdzaj, czy typ jest poprawnie ustawiony
-            // Reszta kodu
-  this.loading = true;
-  this.error = null;
-  try {
-    const typeMapping = {
-    expense: 1,
-  income: 2,
-};
-    const params = {
-      ...this.filters,
-      type: this.filters.type ? typeMapping[this.filters.type] : null,
-      page: this.currentPage,
-      pageSize: 10,
-      startDate: this.filters.startDate ? new Date(this.filters.startDate).toISOString().split('T')[0] : "",
-      endDate: this.filters.endDate ? new Date(this.filters.endDate).toISOString().split('T')[0] : "",
-    };
-    console.log('Wysyłane parametry:', params);
 
-    const response = await getAllTransaction(params);
-    console.log('Transactions:', response.items);
-    this.transactions = response.items;
-    this.totalPages = response.totalPages || 0;
+    methods: {
+      getTransactionTypeLabel(type) {
+        const typeLabels = {
+          Income: "Przychód",
+          Expense: "Wydatek",
+        };
+        return typeLabels[type] || "Nieznany typ";
+      },
+
+      async fetchCategories() {
+  try {
+    const response = await getCategories();  // Zmieniona funkcja
+    this.categories = response.items;  // Przypisanie do 'items'
+    console.log("Fetched categories:", this.categories);
   } catch (error) {
-    this.error = error.message || "Wystąpił błąd podczas pobierania transakcji.";
-    console.error('Error:', error);
-  } finally {
-    this.loading = false;
+    this.error = error.message || "Wystąpił błąd podczas pobierania kategorii.";
+    console.error("Error:", error);
   }
 },
-      async fetchTransactions() {
-        this.loading = true;
-        this.error = null;
-        try {
-          const result = await getAllTransaction({
-            page: this.currentPage,
-            pageSize: 10,
-          });
-          this.transactions = result.items;
-          this.totalPages = result.totalPages;
-        } catch (error) {
-          this.error = "Wystąpił błąd podczas pobierania danych.";
-        } finally {
-          this.loading = false;
+
+
+    async fetchFilteredTransactions() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const typeMapping = {
+          income: "Income",
+          expense: "Expense",
+        };
+        const params = {
+          ...this.filters,
+          type: this.filters.type ? typeMapping[this.filters.type] : null,
+          page: this.currentPage,
+          pageSize: 10,
+          startDate: this.filters.startDate || null,
+          endDate: this.filters.endDate || null,
+        };
+
+        const response = await getAllTransaction(params);
+
+        // Zaktualizowana logika obsługi odpowiedzi
+        this.transactions = response.items || []; // Teraz oczekujemy `items` z funkcji
+        this.totalPages = response.totalPages || 0;
+
+        if (!response.items) {
+          console.warn("Oczekiwano tablicy transakcji, ale otrzymano:", response);
         }
-      },
-      async changePage(newPage) {
-        this.currentPage = newPage;
-        await this.fetchTransactions();
-      },
+      } catch (error) {
+        this.error = "Wystąpił błąd podczas pobierania transakcji.";
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+
       formatDate(date) {
-        const options = { year: "numeric", month: "numeric", day: "numeric" };
+        const options = { year: "numeric", month: "short", day: "numeric" };
         return new Date(date).toLocaleDateString("pl-PL", options);
       },
+
       formatCurrency(value) {
         return new Intl.NumberFormat("pl-PL", {
           style: "currency",
           currency: "PLN",
         }).format(value);
       },
+
+      async changePage(newPage) {
+        this.currentPage = newPage;
+        await this.fetchFilteredTransactions();
+      },
+      
     },
   };
   </script>

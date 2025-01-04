@@ -2,6 +2,7 @@ import apiClient from './config';
 import Transaction from '@/models/Transaction';
 import Goal from "@/models/Goal";
 
+
 export const login = async (credentials) => {
   try {
     const response = await apiClient.post('/Auth/login', credentials);
@@ -30,18 +31,46 @@ export const register = async (userData) => {
 };
 
 export const getAllTransaction = async (params) => {
-  try{
+  try {
     const response = await apiClient.get('Transaction', { params });
     const rawData = response.data;
-    return rawData;
-  } catch(error) {
+
+    console.log("API Response:", rawData); // Debugging odpowiedzi
+
+    return {
+      items: rawData.items || [],
+      totalPages: rawData.totalPages || 0,
+      currentPage: rawData.currentPage || 1,
+      totalItems: rawData.totalItems || 0,
+    };
+  } catch (error) {
+    throw {
+      message: error.response?.data?.message || 'An unexpected error occurred',
+      status: error.response?.status || 500,
+    };
+  }
+};
+
+
+
+
+export const getCategories = async () => {
+  try {
+    const response = await apiClient.get('Category');
+    const rawData = response.data;
+    
+    // Sprawdzanie, czy otrzymaliśmy tablicę i opakowanie jej w 'items'
+    return {
+      items: rawData, // Zwróć otrzymane kategorie jako 'items'
+      total: rawData.length // Możesz dodać także liczbę kategorii
+    };
+  } catch (error) {
     throw {
       message: error.response?.data?.message || 'An unexpected error occurred',
       status: error.response?.status || 500,
     };
   }
 }
-
 
 
 
