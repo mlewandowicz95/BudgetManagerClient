@@ -2,6 +2,18 @@
   <div>
     <h1>Zarządzanie użytkownikami</h1>
 
+    <!-- Przycisk dodawania użytkownika -->
+    <button @click="toggleAddUserForm">
+      {{ addingUser ? "Anuluj dodawanie" : "Dodaj użytkownika" }}
+    </button>
+
+    <!-- Formularz dodawania użytkownika -->
+    <AddUserForm
+      v-if="addingUser"
+      @refresh="handleAddUserSuccess"
+      @error="handleError"
+    />
+
     <!-- Filtry -->
     <div class="filters">
       <div>
@@ -26,7 +38,7 @@
     <div v-if="error" class="error">
       {{ error }}
     </div>
-    
+
     <UserTable
       v-else
       :users="users"
@@ -43,6 +55,7 @@
       :user="editingUser"
       @save="saveUser"
       @cancel="cancelEdit"
+      @error="handleError"
     />
 
     <!-- Paginacja -->
@@ -64,10 +77,11 @@
 <script>
 import UserTable from "@/components/Admin/UserTable.vue";
 import UserForm from "@/components/Admin/UserForm.vue";
-import { getAllUsers } from "@/api/adminApi";
+import AddUserForm from "@/components/Admin/AddUserForm.vue";
+import { getAllUsers, updateUser, deleteUser } from "@/api/adminApi";
 
 export default {
-  components: { UserTable, UserForm },
+  components: { UserTable, UserForm, AddUserForm },
   data() {
     return {
       users: [],
@@ -80,6 +94,7 @@ export default {
       totalPages: 0,
       pageSize: 20,
       editingUser: null,
+      addingUser: false, // Dodane: Czy formularz dodawania użytkownika jest widoczny
       error: null,
       sortBy: "email", // Domyślne sortowanie
       sortOrder: "asc", // Domyślny kierunek sortowania
@@ -87,6 +102,9 @@ export default {
   },
 
   methods: {
+    toggleAddUserForm() {
+      this.addingUser = !this.addingUser;
+    },
     async fetchUsers() {
       try {
         const params = {
@@ -102,10 +120,15 @@ export default {
         this.users = response.items;
         this.totalPages = response.totalPages;
         this.currentPage = response.currentPage;
+        this.error = null; // Czyszczenie błędu
       } catch (error) {
         console.error("Błąd podczas pobierania użytkowników:", error.message);
         this.error = "Nie udało się pobrać użytkowników.";
       }
+    },
+    handleAddUserSuccess() {
+      this.addingUser = false; // Ukrycie formularza po dodaniu użytkownika
+      this.fetchUsers(); // Odświeżenie listy użytkowników
     },
     sort(column) {
       if (this.sortBy === column) {
@@ -120,13 +143,25 @@ export default {
       this.editingUser = { ...user };
     },
     async saveUser(userData) {
-      console.log("Zapisywanie użytkownika", userData);
-      this.editingUser = null;
-      this.fetchUsers();
+      try {
+        await updateUser(userData.id, userData);
+        console.log("Użytkownik został zaktualizowany:", userData);
+        this.editingUser = null; // Zamknięcie formularza
+        this.fetchUsers(); // Odświeżenie listy użytkowników
+      } catch (error) {
+        console.error("Błąd podczas zapisywania użytkownika:", error.message);
+        this.error = error.message; // Wyświetlenie błędu użytkownikowi
+      }
     },
-    deleteUser(userId) {
-      console.log("Usuwanie użytkownika o ID:", userId);
-      this.fetchUsers();
+    async deleteUser(userId) {
+      try {
+        await deleteUser(userId); // Wywołanie API do usunięcia użytkownika
+        console.log("Użytkownik usunięty:", userId);
+        this.fetchUsers();
+      } catch (error) {
+        console.error("Błąd podczas usuwania użytkownika:", error.message);
+        this.error = "Nie udało się usunąć użytkownika.";
+      }
     },
     cancelEdit() {
       this.editingUser = null;
@@ -134,6 +169,9 @@ export default {
     changePage(newPage) {
       this.currentPage = newPage;
       this.fetchUsers();
+    },
+    handleError(error) {
+      this.error = error;
     },
   },
   mounted() {
@@ -151,7 +189,6 @@ export default {
 }
 .filters label {
   margin-right: 5px;
-  
 }
 .error {
   color: red;
