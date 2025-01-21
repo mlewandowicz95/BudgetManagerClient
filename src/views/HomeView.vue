@@ -14,6 +14,7 @@
         <RegisterView />
       </div>
     </div>
+
   </HomeLayout>
 </template>
 
