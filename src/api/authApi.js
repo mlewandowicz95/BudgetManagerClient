@@ -2,10 +2,8 @@ import apiClient from './config';
 import Transaction from '@/models/Transaction';
 import Goal from "@/models/Goal";
 
-export const login = async (credentials) => {
-  const data = await apiClient.post('/Auth/login', credentials);
-  return data; // `data` już jest odpowiednio przetworzone
-};
+
+
 
 export const logout = async () => {
   const data = await apiClient.post('/Auth/logout');
@@ -17,36 +15,15 @@ export const register = async (userData) => {
   return data;
 };
 
+export const login = async (credentials) => {
+  return await apiClient.post('/Auth/login', credentials);
+};
+
+
 
 export const resetPassword = async (userEmail) => {
-  try {
-    console.log("resetPassword start");
-    console.log("Wysyłanie żądania resetu hasła dla e-maila:", userEmail);
-
     const response = await apiClient.post('/Auth/request-password-reset', userEmail);
-    console.log("Odpowiedź z serwera:", response);
-
-    // Sprawdź, czy odpowiedź zawiera `success`
-    if (!response || typeof response.success === "undefined") {
-      throw new Error("Nieoczekiwana odpowiedź serwera.");
-    }
-
-    console.log("DATA: ", response); // Dodatkowy log dla weryfikacji
-    return response; // Zwróć dane w przypadku sukcesu
-  } catch (error) {
-    console.error("Błąd resetowania hasła w funkcji resetPassword:", error);
-
-    if (error.response && error.response.data) {
-      console.error("Błąd z API:", error.response.data);
-      throw {
-        message: error.response.data.message,
-        errorCode: error.response.data.errorCode,
-        traceId: error.response.data.traceId,
-      };
-    }
-
-    throw { message: "Wystąpił nieoczekiwany błąd." };
-  }
+    return response;
 };
 
 
@@ -71,11 +48,6 @@ export const getAllTransaction = async (params) => {
     };
   }
 };
-
-
-
-
-
 
 
 export const fetchDashboardData = async () => {

@@ -8,60 +8,46 @@ const apiClient = axios.create({
   },
 });
 
+// Obsługa sukcesów
 const handleApiResponse = (response) => {
-  console.log("Intercepted Response:", response);
-
   if (!response.data.success) {
-    const error = {
-      message: response.data.message,
-      errorCode: response.data.errorCode,
+    throw {
+      message: response.data.message || "Nieznany błąd.",
+      errorCode: response.data.errorCode || "UNKNOWN_ERROR",
       errors: response.data.errors || null,
     };
-    console.error("Rzucam błąd w handleApiResponse:", error);
-    throw error; // Rzuć błąd, jeśli `success: false`
   }
-
-  console.log("Response Passed:", response.data);
-  return response.data; // Zwróć dane w przypadku sukcesu
+  return response.data.data || null; // Zwraca tylko `data` (jeśli istnieje)
 };
 
-
-// Funkcja do obsługi błędów
+// Obsługa błędów
 const handleApiError = (error) => {
-  if (error.response && error.response.data) {
-    const errorData = error.response.data;
-    const formattedError = {
-      message: errorData.message,
-      errorCode: errorData.errorCode,
-      errors: errorData.errors || null,
+  if (error.response?.data) {
+    const { message, errorCode, errors } = error.response.data;
+    throw {
+      message: message || "Wystąpił błąd serwera.",
+      errorCode: errorCode || "UNKNOWN_ERROR",
+      errors: errors || null,
     };
-    throw formattedError; // Rzuć sformatowany błąd
   }
-  throw { message: 'An unexpected error occurred' }; // Ogólny błąd
+  throw { message: "Wystąpił nieoczekiwany błąd sieci." };
 };
 
 // Dodanie tokena JWT do każdego żądania
-apiClient.interceptors.request.use(
-  (config) => {
-    try {
-      const token = localStorage.getItem('jwtToken');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } catch (error) {
-      console.error('Error accessing localStorage:', error);
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('jwtToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 // Globalna obsługa odpowiedzi i błędów za pomocą interceptorów
 apiClient.interceptors.response.use(
-  (response) => handleApiResponse(response), // Obsługa sukcesu
+  (response) => handleApiResponse(response),
   (error) => {
-    handleApiError(error); // Obsługa błędów
-    return Promise.reject(error); // Opcjonalne przekazanie błędu dalej
+    handleApiError(error);
+    return Promise.reject(error); // Przekazanie błędu dalej
   }
 );
 

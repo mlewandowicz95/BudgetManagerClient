@@ -77,7 +77,7 @@
 <script>
 import { login, resetPassword } from "@/api/authApi";
 import { useUserStore } from "@/stores/userStore";
-
+import { ErrorCodes } from "@/constants/errorCodes";
 export default {
   name: "LoginView",
   data() {
@@ -124,70 +124,102 @@ export default {
     },
     async handlePasswordReset() {
   console.log("Reset hasła rozpoczęty...");
-  try {
-    if (this.resetEmailError) {
-      console.log("Sprawdzanie błędów e-maila:", this.resetEmailError);
-      this.resetError = "Popraw błędy przed wysłaniem formularza.";
-      return;
-    }
 
+  if (this.resetEmailError) {
+    console.log("Sprawdzanie błędów e-maila:", this.resetEmailError);
+    this.resetError = "Popraw błędy przed wysłaniem formularza.";
+    return;
+  }
+
+  try {
     this.isResetting = true; // Włącz flagę ładowania
     this.resetError = ""; // Wyczyść poprzednie błędy
     this.success = ""; // Wyczyść poprzednie sukcesy
 
-    const response = await resetPassword({ email: this.resetEmail });
-    console.log("Odpowiedź API resetu hasła:", response);
-    // Obsługa sukcesu
-    if (response.success) {
-      this.success = "Instrukcje resetu hasła zostały wysłane.";
-      //this.success = response.message || "Instrukcje resetu hasła zostały wysłane.";
-      this.resetEmail = ""; // Wyczyść pole e-mail
-      this.showForgotPasswordForm = false; // Zamknij formularz
-    }
+    // Wywołanie funkcji z authApi
+    const { email } = await resetPassword({ email: this.resetEmail });
+
+    // Sukces - obsługa odpowiedzi
+    console.log("Reset hasła powiódł się dla e-maila:", email);
+    this.success = "Instrukcje resetu hasła zostały wysłane na podany adres e-mail.";
+    this.resetEmail = ""; // Wyczyść pole e-mail
+    this.showForgotPasswordForm = false; // Zamknij formularz
   } catch (error) {
     console.error("Błąd resetu hasła:", error);
 
-    // Obsługa błędów według kodu błędu
+    // Obsługa błędów według kodów błędów z backendu
     switch (error.errorCode) {
-      case "USER_NOT_FOUND":
+      case ErrorCodes.UserNotFound:
         this.resetError = "Nie znaleziono użytkownika o podanym adresie e-mail.";
         break;
-      case "VALIDATION_ERROR":
+      case ErrorCodes.ValidationError:
         this.resetError = "Wystąpił błąd walidacji. Sprawdź poprawność danych.";
         break;
+      case ErrorCodes.InternalServerError:
+        this.resetError = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+        break;
       default:
-        this.resetError = error.message || "Wystąpił błąd podczas resetu hasła.";
+        this.resetError = error.message || "Wystąpił nieoczekiwany błąd.";
     }
   } finally {
     this.isResetting = false; // Wyłącz flagę ładowania
   }
 }
-,
-    async handleLogin() {
-      const userStore = useUserStore();
-      if (this.usernameError || this.passwordError) {
-        this.error = "Popraw błędy przed wysłaniem formularza.";
-        return;
-      }
 
-      try {
-        this.isSubmitting = true;
-        this.error = "";
-        const token = await login({
-          email: this.username,
-          password: this.password,
-        });
-        userStore.setToken(token);
-        localStorage.setItem("jwtToken", token);
-        this.$router.push("/dashboard");
-      } catch (error) {
-        this.error =
-          error.response?.data?.message || "Wystąpił błąd podczas logowania.";
-        console.error("Błąd logowania:", error);
-      } finally {
-        this.isSubmitting = false;
-      }
-    },
+,
+async handleLogin() {
+  const userStore = useUserStore();
+
+  // Sprawdzenie błędów walidacji przed wysłaniem formularza
+  if (this.usernameError || this.passwordError) {
+    this.error = "Popraw błędy przed wysłaniem formularza.";
+    return;
+  }
+
+  try {
+    this.isSubmitting = true; // Flaga ładowania
+    this.error = ""; // Wyczyść wcześniejsze błędy
+
+    // Wysłanie żądania logowania
+    const { token } = await login({
+      email: this.username,
+      password: this.password,
+    });
+
+    // Jeśli logowanie się powiedzie
+    userStore.setToken(token); // Zapis tokena do Pinia
+    localStorage.setItem("jwtToken", token); // Zapis tokena do localStorage
+    this.$router.push("/dashboard"); // Przekierowanie na dashboard
+  } catch (error) {
+    console.error("Błąd logowania:", error);
+    console.log("Kod błędu:", error?.errorCode);
+
+    // Obsługa błędów w zależności od kodu błędu
+    switch (error.errorCode) {
+      case  ErrorCodes.InvalidCredentials:
+        this.error = "Nieprawidłowy e-mail lub hasło.";
+        break;
+      case ErrorCodes.UserNotFound:
+        this.error = "Użytkownik o podanym adresie e-mail nie istnieje.";
+        break;
+      case ErrorCodes.AccountNotActivated:
+        this.error = "Konto nie zostało aktywowane. Sprawdź swój e-mail.";
+        break;
+      case ErrorCodes.ValidationError:
+        this.error = "Wystąpił błąd walidacji. Sprawdź poprawność danych.";
+        break;
+        case ErrorCodes.InternalServerError:
+        this.resetError = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+        break;
+      default:
+        this.error = error.message || "Wystąpił nieoczekiwany błąd.";
+    }
+  } finally {
+    this.isSubmitting = false; // Wyłączenie flagi ładowania
+  }
+}
+
+,
   },
 };
 </script>

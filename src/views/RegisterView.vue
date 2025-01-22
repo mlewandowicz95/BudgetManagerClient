@@ -24,6 +24,7 @@
 
 <script>
 import { register } from "@/api/authApi";
+import { ErrorCodes } from "@/constants/errorCodes";
 
 export default {
   name: "RegisterView",
@@ -82,11 +83,28 @@ export default {
         });
 
         // Obsługa sukcesu
+        console.log("Rejestracja zakończonm:",response);
         this.success = response.message || "Rejestracja zakończona sukcesem!";
       } catch (error) {
         // Obsługa błędów
-        this.error = error.message || "Wystąpił błąd podczas rejestracji.";
         console.error("Błąd rejestracji:", error);
+// 5. Obsługa błędów wg kodów błędów
+switch (error.errorCode) {
+      case ErrorCodes.ValidationError:
+        this.error = "Wystąpił błąd walidacji. Sprawdź poprawność danych.";
+        break;
+      case ErrorCodes.PasswordsMisMatch:
+        this.error = "Hasła nie są zgodne. Sprawdź pola i spróbuj ponownie.";
+        break;
+      case ErrorCodes.UserAlreadyExists:
+        this.error = "Podany adres e-mail jest już zarejestrowany.";
+        break;
+      case ErrorCodes.InternalServerError:
+        this.error = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+        break;
+      default:
+        this.error = error.message || "Wystąpił nieoczekiwany błąd.";
+    }
       } finally{
         this.isSubmitting = false; // Wyłącz loader
       }
