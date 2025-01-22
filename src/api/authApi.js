@@ -15,6 +15,18 @@ export const register = async (userData) => {
   return data;
 };
 
+export const confirmEmail = async (token) => {
+  try {
+    const response = await apiClient.get('/Auth/confirm-email', {
+      params: { token },
+    });
+    return response; // Interceptor obsłuży odpowiedź
+  } catch (error) {
+    console.error("Błąd podczas potwierdzania emaila:", error);
+    throw error; // Rzucamy dalej, by obsłużyć w widoku
+  }
+};
+
 export const login = async (credentials) => {
   return await apiClient.post('/Auth/login', credentials);
 };
@@ -25,6 +37,8 @@ export const resetPassword = async (userEmail) => {
     const response = await apiClient.post('/Auth/request-password-reset', userEmail);
     return response;
 };
+
+
 
 
 

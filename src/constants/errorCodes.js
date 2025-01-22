@@ -15,7 +15,14 @@ export const ErrorCodes = {
   // Błąd serwera
   InternalServerError: "INTERNAL_SERVER_ERROR",
 
+  // Aktywacja konta tokenem:
+  MissingToken: "MISSING_TOKEN",
+  InvalidToken: "INVALID_TOKEN",
+  UserAlreadyActive: "USER_ALREADY_ACTIVE",
+  
+
   // Dodaj więcej kodów błędów w miarę potrzeb
+
 };
 
 export default ErrorCodes;

@@ -1,5 +1,7 @@
 <template>
   <HomeLayout>
+
+    
     <div v-if="message" class="alert">
       {{ message }}
       </div>

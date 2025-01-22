@@ -23,12 +23,14 @@ const routes = [
   },
   {
     path: '/login',
+    redirect: '/',
     name: 'Login',
     component: LoginView,
     meta: { requiresAuth: false },
   },
   {
     path: '/register',
+    redirect: '/',
     name: 'Register',
     component: RegisterView,
     meta: { requiresAuth: false },
@@ -92,6 +94,10 @@ const routes = [
         component: AdminView,
       }
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*', // Obsługa nieistniejących ścieżek
+    redirect: '/', // Przekierowanie na stronę główną
   },
 ];
 
