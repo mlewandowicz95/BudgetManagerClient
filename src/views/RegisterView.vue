@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { register } from "@/api/authApi";
+import { register } from "@/api/api";
 import { ErrorCodes } from "@/constants/errorCodes";
 
 export default {

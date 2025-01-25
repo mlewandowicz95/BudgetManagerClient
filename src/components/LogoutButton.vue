@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { logout } from '@/api/authApi';
+import { logout } from '@/api/api';
 import User from '@/models/User';
 
 export default {

@@ -19,6 +19,7 @@ export const ErrorCodes = {
   MissingToken: "MISSING_TOKEN",
   InvalidToken: "INVALID_TOKEN",
   UserAlreadyActive: "USER_ALREADY_ACTIVE",
+  Unathorized: "UNATHORIZED",
   
 
   // Dodaj więcej kodów błędów w miarę potrzeb

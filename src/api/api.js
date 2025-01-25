@@ -1,7 +1,4 @@
 import apiClient from './config';
-import Transaction from '@/models/Transaction';
-import Goal from "@/models/Goal";
-
 
 
 
@@ -33,13 +30,43 @@ export const login = async (credentials) => {
 
 
 
+
 export const resetPassword = async (userEmail) => {
     const response = await apiClient.post('/Auth/request-password-reset', userEmail);
     return response;
 };
 
 
+export const fetchDashboardData = async () => {
+  const response = await apiClient.get("/Dashboard");
+ // console.log("Odpowiedz z API: ", response);
+  return response;
 
+};
+
+export const getExpensesByCategory = async () => {
+    const response = await apiClient.get("/Dashboard/expenses-by-category");
+    //console.log("Odpowiedz expensesByCategory z API: ", response);
+    return response
+
+}; 
+
+export const getFinancialIndicators = async () => {
+  const response = await apiClient.get("/Dashboard/financial-indicators");
+ // console.log("Odpowiedz getFinancialIndicators z API: ", response);
+  return response
+}
+
+export const getBudgetForecast = async () => {
+  const response = await apiClient.get("/Dashboard/budget-forecast");
+  return response;
+}
+
+export const getBalancePerMonth = async() => {
+  const response = await apiClient.get("/Dashboard/balance-per-month");
+  console.log("Odpowiedź z API (BalancePerMonth):", response);
+  return response;
+}
 
 
 export const getAllTransaction = async (params) => {
@@ -64,37 +91,5 @@ export const getAllTransaction = async (params) => {
 };
 
 
-export const fetchDashboardData = async () => {
-  try {
-    const response = await apiClient.get("/Dashboard/dashboard");
-    const rawData = response.data;
-
-    return {
-      totalIncome: rawData.totalIncome,
-      totalExpenses: rawData.totalExpenses,
-      balance: rawData.balance,
-      recentTransactions: rawData.recentTransactions.map(tx => new Transaction(tx)),
-      savingGoals: rawData.savingGoals.map(goal => new Goal(goal)),
-    };
-  } catch (error) {
-    console.error("Error in fetchDashboardData:", error);
-    throw error.response ? error.response.data : error;
-  }
-};
 
 
-export const expensesByCategory = async () => {
-  try {
-    const response = await apiClient.get("/Dashboard/dashboard/expenses-by-category");
-    const rawData = response.data;
-
-  
-    return rawData.map(item => ({
-      category: item.category,
-      totalAmount: item.totalAmount,
-    }));
-  } catch (error) {
-    console.error("Error in expensesByCategory:", error);
-    throw error.response ? error.response.data : error;
-  }
-};

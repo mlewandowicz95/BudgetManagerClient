@@ -1,112 +1,127 @@
 <template>
   <div class="dashboard-container">
     <div class="add-goal-section">
-      <button @click="onAddGoalClick" class="add-goal-button">Dodaj wpływ</button>
-      <button @click="onAddGoalClick" class="add-goal-button">Dodaj wydatek</button>
-      <button @click="onAddGoalClick" class="add-goal-button">Dodaj cel</button>
+      <button @click="onAddIncomeClick" class="add-goal-button income-button">Dodaj wpływ</button>
+      <button @click="onAddExpenseClick" class="add-goal-button expense-button">Dodaj wydatek</button>
+      <button @click="onAddGoalClick" class="add-goal-button goal-button">Dodaj cel</button>
     </div>
 
-    <!-- Sekcja podsumowania finansowego -->
     <div class="dashboard-summary">
-      <div class="summary-item">
-        <h3 class="red">Wydatki</h3>
-        <p>{{ formatCurrency(dashboardData.totalExpenses) }}</p>
-      </div>
-      <div class="summary-item">
-        <h3>Wpływy</h3>
-        <p>{{ formatCurrency(dashboardData.totalIncome) }}</p>
-      </div>
-      <div class="summary-item">
-        <h3>Balance</h3>
-        <p>{{ formatCurrency(dashboardData.balance) }}</p>
-      </div>
-      <div class="summary-item">
-        <h3>Okres</h3>
-        <p>{{currentMonth }}</p>
-      </div>
+      <SummaryItem title="Wydatki" :value="dashboardData.totalExpenses" color="red" />
+      <SummaryItem title="Wpływy" :value="dashboardData.totalIncome" color="green" />
+      <SummaryItem title="Bilans" :value="balance" color="#333" />
+      <SummaryItem title="Okres" :value="currentMonth" />
+    </div>
+    <div class="charts-container">
+      <BalancePerMonth />
+      <ExpensesByCategoryChart />
+      <MonthlyTrendsChart />
     </div>
 
-    <!-- Sekcja list transakcji i celów oszczędnościowych -->
+
+    <FinancialIndicators />
+    <BudgetForecast />
+
     <div class="dashboard-lists">
       <TransactionList :transactions="dashboardData.recentTransactions" />
-      <SavingGoalsList :goals="dashboardData.savingGoals" />
+      <SavingGoalsList :goals="dashboardData.savingGoals" /> 
     </div>
-
-    <!-- Wykres słupkowy poziomy -->
-  <!--  <HorizontalBarChart v-if="dataReady" :categories="categories" :totals="totals" /> -->
   </div>
 </template>
 
 <script>
-import { expensesByCategory, fetchDashboardData } from "@/api/authApi";
+import { fetchDashboardData } from "@/api/api";
+import ErrorCodes from "@/constants/errorCodes";
+import SummaryItem from "@/components/SummaryItem.vue";
 import TransactionList from "@/components/TransactionList.vue";
 import SavingGoalsList from "@/components/SavingGoalsList.vue";
-//import HorizontalBarChart from "@/components/charts/HorizontalBarChart.vue";
+import FinancialIndicators from "@/components/FinancialIndicators.vue";
+import BudgetForecast from "@/components/BudgetForecast.vue";
+import BalancePerMonth from "@/components/charts/BalancePerMonthChart.vue";
+import ExpensesByCategoryChart from "@/components/charts/ExpensesByCategoryChart.vue";
+import MonthlyTrendsChart from "@/components/charts/MonthlyTrendsChart.vue";
 
 export default {
   name: "DashboardView",
   components: {
+    SummaryItem,
+    FinancialIndicators,
     TransactionList,
+    BudgetForecast,
     SavingGoalsList,
-   // HorizontalBarChart,
+    BalancePerMonth,
+    ExpensesByCategoryChart,
+    MonthlyTrendsChart
   },
   data() {
     return {
       currentMonth: "",
-      categories: [],
-      totals: [],
-      dataReady: false,
       dashboardData: {
         totalIncome: 0,
         totalExpenses: 0,
-        balance: 0,
         recentTransactions: [],
         savingGoals: [],
       },
     };
   },
-  async mounted() {
-    try {
-
-      const now = new Date();
-    this.currentMonth = now.toLocaleDateString("pl-PL", {
-      year: "numeric",
-      month: "long",
-    });
-      const data = await expensesByCategory();
-      this.categories = data.map((item) => item.category);
-      this.totals = data.map((item) => item.totalAmount);
-      this.dataReady = true; // Dane są gotowe
-    } catch (error) {
-      console.error("Error fetching expenses by category.", error);
-    }
+  computed: {
+    balance() {
+      return this.dashboardData.totalIncome - this.dashboardData.totalExpenses;
+    },
   },
   async created() {
     try {
-      const data = await fetchDashboardData();
-      this.dashboardData = data;
+      const now = new Date();
+      this.currentMonth = now.toLocaleDateString("pl-PL", {
+        year: "numeric",
+        month: "long",
+      });
+
+      const response = await fetchDashboardData();
+      this.dashboardData = response;
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      this.handleApiError(error);
     }
   },
   methods: {
-    onAddGoalClick() {
-      console.log("Dodaj cel kliknięty");
-    },
-    formatCurrency(value) {
-      return new Intl.NumberFormat("pl-PL", {
-        style: "currency",
-        currency: "PLN",
-      }).format(value);
+    handleApiError(error) {
+      const messages = {
+        [ErrorCodes.Unathorized]: "Użytkownik nie jest zalogowany.",
+        [ErrorCodes.InternalServerError]: "Wystąpił błąd serwera. Spróbuj ponownie później.",
+      };
+      console.error(messages[error.errorCode] || "Wystąpił nieoczekiwany błąd.");
     },
   },
 };
 </script>
 
+
 <style scoped>
 .dashboard-container {
   padding: 20px;
-  border: 1px solid black;
+}
+
+.add-goal-section {
+  display: flex;
+  justify-content: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.add-goal-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-goal-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .dashboard-summary {
@@ -126,25 +141,48 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.add-goal-section {
+.charts-container {
   display: flex;
-  justify-content: flex-start;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 20px;
 }
 
-.add-goal-button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 20px;
-  border: none;
-  cursor: pointer;
+.charts-container > * {
+  flex: 1;
+  max-width: calc(20% - 20px); /* Zmniejsz szerokość do 20% */
+  padding: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-lists {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 20px;
+  margin-top: 20px;
 }
 
+@media (max-width: 768px) {
+  .dashboard-summary {
+    flex-direction: column;
+  }
 
+  .charts-container {
+    flex-direction: column;
+  }
+
+  .charts-container > * {
+    max-width: 100%; /* Pełna szerokość na małych ekranach */
+    margin: 10px 0;
+  }
+
+  .dashboard-lists {
+    flex-direction: column;
+  }
+}
 </style>
+
+

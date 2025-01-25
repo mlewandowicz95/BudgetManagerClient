@@ -11,7 +11,6 @@
           placeholder="Adres e-mail"
           aria-label="Adres e-mail"
         />
-        <p v-if="usernameError" class="error">{{ usernameError }}</p>
       </div>
       <div>
         <input
@@ -23,7 +22,6 @@
           placeholder="Hasło"
           aria-label="Hasło"
         />
-        <p v-if="passwordError" class="error">{{ passwordError }}</p>
       </div>
 
       <!-- Przycisk resetu hasła -->
@@ -75,7 +73,7 @@
 </template>
 
 <script>
-import { login, resetPassword } from "@/api/authApi";
+import { login, resetPassword } from "@/api/api";
 import { useUserStore } from "@/stores/userStore";
 import { ErrorCodes } from "@/constants/errorCodes";
 export default {
@@ -88,8 +86,6 @@ export default {
       error: "",
       resetError: "",
       success: "",
-      usernameError: null, // Walidacja e-maila
-      passwordError: null, // Walidacja hasła
       resetEmailError: null,
       isSubmitting: false, // Flaga dla ładowania logowania
       isResetting: false, // Flaga dla ładowania resetowania hasła
@@ -97,18 +93,6 @@ export default {
     };
   },
   watch: {
-    username(value) {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      this.usernameError = emailPattern.test(value)
-        ? null
-        : "Podaj poprawny adres e-mail.";
-    },
-    password(value) {
-      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-      this.passwordError = passwordPattern.test(value)
-        ? null
-        : "Hasło musi mieć min. 8 znaków, zawierać wielką i małą literę, cyfrę oraz znak specjalny.";
-    },
     resetEmail(value) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       this.resetEmailError = emailPattern.test(value)

@@ -74,7 +74,7 @@
   
   
   <script>
-  import { getAllTransaction } from "@/api/authApi";
+  import { getAllTransaction } from "@/api/api";
   import { getCategories } from "@/api/categoryApi";
 
   

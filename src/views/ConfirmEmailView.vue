@@ -10,7 +10,7 @@
   </template>
   
   <script>
-import { confirmEmail } from "@/api/authApi";
+import { confirmEmail } from "@/api/api";
 import { ErrorCodes } from "@/constants/errorCodes";
 import HomeLayout from '@/layouts/HomeLayout.vue';
 
@@ -30,7 +30,7 @@ export default {
         const token = this.$route.query.token;
 
         if(!token){
-            this.error = "Brak tokenu aktywacyjnego. Proszę sprawdzić link w e-mailu.";
+            this.error = "Brak tokenu aktywacyjnego. Proszę sprawdzić link w e-mailu."; 
             return;
         }
 
