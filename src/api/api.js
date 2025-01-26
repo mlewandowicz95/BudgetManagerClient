@@ -64,10 +64,30 @@ export const getBudgetForecast = async () => {
 
 export const getBalancePerMonth = async() => {
   const response = await apiClient.get("/Dashboard/balance-per-month");
-  console.log("Odpowiedź z API (BalancePerMonth):", response);
+  //console.log("Odpowiedź z API (BalancePerMonth):", response);
   return response;
 }
 
+
+export const addTransaction = async (transactionData) => {
+  return await apiClient.post("/Transaction", transactionData);
+};
+
+export const fetchCategories = async () =>{
+  const response = await apiClient.get('/Category');
+  //console.log("Odpowiedź z API (fetchCategories):", response);
+  return response;
+}
+
+export const fetchGoals = async () => {
+  const response = await apiClient.get('/Goal');
+  console.log("Odpowiedź z API (fetchGoals):", response);
+  return response;
+}
+
+export const addGoal = async (goalData) => {
+  return await apiClient.post('/Goal', goalData);
+}
 
 export const getAllTransaction = async (params) => {
   try {

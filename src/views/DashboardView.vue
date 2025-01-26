@@ -1,9 +1,9 @@
 <template>
   <div class="dashboard-container">
     <div class="add-goal-section">
-      <button @click="onAddIncomeClick" class="add-goal-button income-button">Dodaj wpływ</button>
-      <button @click="onAddExpenseClick" class="add-goal-button expense-button">Dodaj wydatek</button>
-      <button @click="onAddGoalClick" class="add-goal-button goal-button">Dodaj cel</button>
+      <button @click="navigateTo('/add-income')" class="add-goal-button income-button">Dodaj wpływ</button>
+      <button @click="navigateTo('/add-expense')" class="add-goal-button expense-button">Dodaj wydatek</button>
+      <button @click="navigateTo('/add-goal')" class="add-goal-button goal-button">Dodaj cel</button>
     </div>
 
     <div class="dashboard-summary">
@@ -91,6 +91,9 @@ export default {
       };
       console.error(messages[error.errorCode] || "Wystąpił nieoczekiwany błąd.");
     },
+    navigateTo(route) {
+      this.$router.push(route);
+    },
   },
 };
 </script>
@@ -112,11 +115,12 @@ export default {
   padding: 10px 20px;
   font-size: 16px;
   font-weight: bold;
-  color: black;
+  color: white; /* Zmieniono na biały dla kontrastu */
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
 }
 
 .add-goal-button:hover {
@@ -124,6 +128,17 @@ export default {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
+.income-button {
+  background-color: #4caf50; /* Zielony */
+}
+
+.expense-button {
+  background-color: #f44336; /* Czerwony */
+}
+
+.goal-button {
+  background-color: #2196f3; /* Niebieski */
+}
 .dashboard-summary {
   display: flex;
   justify-content: space-between;

@@ -11,6 +11,9 @@ import ProfileView from "@/views/ProfileView.vue";
 import HistoryView from '@/views/HistoryView.vue';
 import SettingsView from '@/views/SettingsView.vue';
 import AdminView from '@/views/admin/AdminView.vue';
+import AddIncomeForm from '@/components/AddIncomeForm.vue';
+import AddExpenseForm from '@/components/AddExpenseForm.vue';
+import AddGoalForm from '@/components/AddGoalForm.vue';
 
 
 const routes = [
@@ -44,6 +47,42 @@ const routes = [
         path: "",
         name: "Dashboard",
         component: DashboardView,
+      }
+    ]
+  },
+  {
+    path: '/add-income',
+    component: AppLayout,
+    meta: {requiresAuth: true },
+    children: [
+      {
+        path: "",
+        name: "AddIncome",
+        component: AddIncomeForm,
+      }
+    ]
+  },
+  {
+    path: '/add-expense',
+    component: AppLayout,
+    meta: {requiresAuth: true },
+    children: [
+      {
+        path: "",
+        name: "AddExpense",
+        component: AddExpenseForm,
+      }
+    ]
+  },
+  {
+    path: '/add-goal',
+    component: AppLayout,
+    meta: {requiresAuth: true },
+    children: [
+      {
+        path: "",
+        name: "AddGoal",
+        component: AddGoalForm,
       }
     ]
   },
