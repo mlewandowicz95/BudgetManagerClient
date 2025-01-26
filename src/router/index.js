@@ -14,6 +14,7 @@ import AdminView from '@/views/admin/AdminView.vue';
 import AddIncomeForm from '@/components/AddIncomeForm.vue';
 import AddExpenseForm from '@/components/AddExpenseForm.vue';
 import AddGoalForm from '@/components/AddGoalForm.vue';
+import ConfirmEmailChangeView from '@/components/ConfirmEmailChangeView.vue';
 
 
 const routes = [
@@ -97,6 +98,12 @@ const routes = [
         component: ProfileView,
       }
     ]
+  },
+  {
+    path: "/User/confirm-email-change",
+    name: "ConfirmEmailChange",
+    component: ConfirmEmailChangeView,
+    props: (route) => ({ token: route.query.token }), // Przechwycenie tokenu z parametru URL
   },
   {
     path: '/history',

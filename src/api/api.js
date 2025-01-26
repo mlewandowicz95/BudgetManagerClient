@@ -89,6 +89,27 @@ export const addGoal = async (goalData) => {
   return await apiClient.post('/Goal', goalData);
 }
 
+export const fetchUserProfile = async () => {
+  const response = await apiClient.get("/User/profile");
+  return response; // Zwracanie tylko danych użytkownika
+};
+
+export const changePassword = async (passwordData) => {
+  //console.log("PasswordData: ", passwordData);
+  return await apiClient.post("/User/profile/change-password", passwordData);
+};
+
+export const changeEmail = async (emailData) => {
+  //console.log("EmailData: ", emailData);
+  return await apiClient.put("/User/profile/email", emailData);
+};
+
+export const getConfirmEmailChange = async (token) => {
+  return await apiClient.get("/User/confirm-email-change", {
+    params: { token },
+  });
+};
+
 export const getAllTransaction = async (params) => {
   try {
     const response = await apiClient.get('Transaction', { params });
