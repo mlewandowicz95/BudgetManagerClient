@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { login, resetPassword } from "@/api/api";
+import { login, requestPasswordReset } from "@/api/api";
 import { useUserStore } from "@/stores/userStore";
 import { ErrorCodes } from "@/constants/errorCodes";
 export default {
@@ -121,7 +121,7 @@ export default {
     this.success = ""; // Wyczyść poprzednie sukcesy
 
     // Wywołanie funkcji z authApi
-    const { email } = await resetPassword({ email: this.resetEmail });
+    const { email } = await requestPasswordReset({ email: this.resetEmail });
 
     // Sukces - obsługa odpowiedzi
     console.log("Reset hasła powiódł się dla e-maila:", email);

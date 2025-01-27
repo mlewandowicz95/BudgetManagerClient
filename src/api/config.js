@@ -33,6 +33,15 @@ const handleApiError = (error) => {
   throw { message: "Wystąpił nieoczekiwany błąd sieci." };
 };
 
+// Globalna obsługa odpowiedzi i błędów za pomocą interceptorów
+apiClient.interceptors.response.use(
+  (response) => handleApiResponse(response),
+  (error) => {
+    handleApiError(error);
+    return Promise.reject(error); // Przekazanie błędu dalej
+  }
+);
+
 // Dodanie tokena JWT do każdego żądania
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('jwtToken');
@@ -42,13 +51,6 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Globalna obsługa odpowiedzi i błędów za pomocą interceptorów
-apiClient.interceptors.response.use(
-  (response) => handleApiResponse(response),
-  (error) => {
-    handleApiError(error);
-    return Promise.reject(error); // Przekazanie błędu dalej
-  }
-);
+
 
 export default apiClient;

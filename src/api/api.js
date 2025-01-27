@@ -31,9 +31,13 @@ export const login = async (credentials) => {
 
 
 
-export const resetPassword = async (userEmail) => {
+export const requestPasswordReset = async (userEmail) => {
     const response = await apiClient.post('/Auth/request-password-reset', userEmail);
     return response;
+};
+
+export const resetPassword = async (resetData) => {
+  return await apiClient.post("/Auth/reset-password", resetData);
 };
 
 
@@ -109,6 +113,7 @@ export const getConfirmEmailChange = async (token) => {
     params: { token },
   });
 };
+
 
 export const getAllTransaction = async (params) => {
   try {

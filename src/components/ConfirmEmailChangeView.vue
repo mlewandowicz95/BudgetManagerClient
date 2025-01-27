@@ -5,7 +5,7 @@
       <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
       <p v-else-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       <p v-else class="loading-message">Trwa przetwarzanie...</p>
-      <router-link v-if="successMessage || errorMessage" to="/dashboard" class="redirect-link">
+      <router-link v-if="successMessage || errorMessage" to="/" class="redirect-link">
         Powrót do strony głównej
       </router-link>
     </div>
@@ -25,20 +25,24 @@ export default {
     };
   },
   async created() {
-    try {
-      if (!this.token) {
-        throw new Error("Brak tokenu do potwierdzenia zmiany e-maila.");
-      }
-
-      console.log("Token: ", this.token); // Debugowanie tokena
-      const response = await getConfirmEmailChange(this.token);
-      this.successMessage = response.message || "E-mail został pomyślnie zmieniony.";
-    } catch (error) {
-      console.error("Błąd potwierdzenia zmiany e-maila:", error);
-      this.errorMessage =
-        error.response?.data?.message || "Nie udało się potwierdzić zmiany e-maila.";
+  try {
+    if (!this.token) {
+      throw new Error("Brak tokenu do potwierdzenia zmiany e-maila.");
     }
-  },
+
+    const response = await getConfirmEmailChange(this.token);
+    console.log("Response z API w widoku: ", response);
+    if (response) {
+      this.successMessage = "E-mail został pomyślnie zmieniony.";
+    } else {
+      throw new Error("Nie udało się potwierdzić zmiany e-maila.");
+    }
+  } catch (error) {
+    console.error("Błąd potwierdzenia zmiany e-maila:", error);
+    this.errorMessage =
+      error.response?.data?.message || "Nie udało się potwierdzić zmiany e-maila.";
+  }
+},
 };
 </script>
 

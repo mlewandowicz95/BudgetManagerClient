@@ -15,6 +15,7 @@ import AddIncomeForm from '@/components/AddIncomeForm.vue';
 import AddExpenseForm from '@/components/AddExpenseForm.vue';
 import AddGoalForm from '@/components/AddGoalForm.vue';
 import ConfirmEmailChangeView from '@/components/ConfirmEmailChangeView.vue';
+import ResetPasswordView from '@/components/ResetPasswordView.vue';
 
 
 const routes = [
@@ -32,6 +33,13 @@ const routes = [
     component: LoginView,
     meta: { requiresAuth: false },
   },
+  {
+    path: "/reset-password",
+    name: "ResetPassword",
+    component: ResetPasswordView,
+    props: (route) => ({ token: route.query.token }), // Przekazuje token jako prop
+  },
+  
   {
     path: '/register',
     redirect: '/',
@@ -100,10 +108,10 @@ const routes = [
     ]
   },
   {
-    path: "/User/confirm-email-change",
+    path: "/confirm-email-change",
     name: "ConfirmEmailChange",
     component: ConfirmEmailChangeView,
-    props: (route) => ({ token: route.query.token }), // Przechwycenie tokenu z parametru URL
+    props: (route) => ({ token: route.query.token }), // Token przekazywany z query
   },
   {
     path: '/history',
