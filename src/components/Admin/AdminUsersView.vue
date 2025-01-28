@@ -115,7 +115,7 @@ export default {
           sortBy: this.sortBy,
           sortOrder: this.sortOrder,
         };
-
+        console.log("Wysyłane parametry: ", params);
         const response = await getAllUsers(params);
         this.users = response.items;
         this.totalPages = response.totalPages;

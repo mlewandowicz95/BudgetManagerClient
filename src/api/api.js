@@ -116,26 +116,42 @@ export const getConfirmEmailChange = async (token) => {
 
 
 export const getAllTransaction = async (params) => {
-  try {
     const response = await apiClient.get('Transaction', { params });
-    const rawData = response.data;
 
-    console.log("API Response:", rawData);
-
-    return {
-      items: rawData.items || [],
-      totalPages: rawData.totalPages || 0,
-      currentPage: rawData.currentPage || 1,
-      totalItems: rawData.totalItems || 0,
-    };
-  } catch (error) {
-    throw {
-      message: error.response?.data?.message || 'An unexpected error occurred',
-      status: error.response?.status || 500,
-    };
-  }
+    console.log("API Response(getAllTransaction): ", response);
+    return response;
 };
 
 
+// ADMIN 
+export const getAllUsers = async (params) => {
+  try {
+    console.log("Wysyłane parametry:", params);
+
+    const queryParams = new URLSearchParams();
+
+    // Przekazywanie ról jako powtarzalne parametry
+    if (params.roles && params.roles.length > 0) {
+      params.roles.forEach(role => queryParams.append("roles", role));
+    }
+
+    // Pozostałe parametry
+    if (params.isActive !== undefined) queryParams.append("isActive", params.isActive);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.pageSize) queryParams.append("pageSize", params.pageSize);
+    if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+    if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
+    console.log(" PRzed Odpowiedź z backendu(getAllUsers):", response);
+    const response = await apiClient.get(`Admin/users?${queryParams.toString()}`);
+    console.log("Odpowiedź z backendu(getAllUsers):", response);
+    
+    return response;
+  } catch (error) {
+    console.error("Błąd podczas pobierania użytkowników:", error.response || error.message);
+    throw new Error(
+      error.response?.data?.message || "Nie udało się pobrać użytkowników."
+    );
+  }
+};
 
 
