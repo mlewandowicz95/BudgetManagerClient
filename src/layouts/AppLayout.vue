@@ -29,10 +29,11 @@
   }
   
   .content {
-  flex: 1; /* Dynamicznie zajmuje pozostałą przestrzeń */
-  padding: 20px; /* Opcjonalne wypełnienie */
-  overflow-y: auto; /* Dodaj przewijanie, jeśli zawartość przekracza miejsce */
-  box-sizing: border-box; /* Upewnij się, że padding nie zwiększa wielkości elementu */
+  flex: 1;
+  padding: 20px;
+  padding-top: 70px; /* Dostosuj do wysokości headera */
+  overflow-y: auto; /* Przewijanie treści */
+  box-sizing: border-box;
 }
   </style>
   
