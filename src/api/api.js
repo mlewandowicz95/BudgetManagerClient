@@ -125,33 +125,67 @@ export const getAllTransaction = async (params) => {
 
 // ADMIN 
 export const getAllUsers = async (params) => {
+
+  const response = await apiClient.get('Admin/users', { params });
+  return response;
+};
+
+
+export const deleteUser = async (id) => {
   try {
-    console.log("Wysyłane parametry:", params);
-
-    const queryParams = new URLSearchParams();
-
-    // Przekazywanie ról jako powtarzalne parametry
-    if (params.roles && params.roles.length > 0) {
-      params.roles.forEach(role => queryParams.append("roles", role));
-    }
-
-    // Pozostałe parametry
-    if (params.isActive !== undefined) queryParams.append("isActive", params.isActive);
-    if (params.page) queryParams.append("page", params.page);
-    if (params.pageSize) queryParams.append("pageSize", params.pageSize);
-    if (params.sortBy) queryParams.append("sortBy", params.sortBy);
-    if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-    console.log(" PRzed Odpowiedź z backendu(getAllUsers):", response);
-    const response = await apiClient.get(`Admin/users?${queryParams.toString()}`);
-    console.log("Odpowiedź z backendu(getAllUsers):", response);
-    
-    return response;
+    await apiClient.delete(`/Admin/${id}`);
   } catch (error) {
-    console.error("Błąd podczas pobierania użytkowników:", error.response || error.message);
-    throw new Error(
-      error.response?.data?.message || "Nie udało się pobrać użytkowników."
-    );
+    throw new Error("Nie udało się usunąć użytkownika.");
   }
 };
 
 
+export const updateUser = async (id, userData) => {
+    const response = await apiClient.put(`/Admin/${id}`, userData);
+    console.log("Użytkownik zaktualizowany:", response);
+    return response; // Zwracaj dane w przypadku sukcesu
+};
+  
+
+  export const addUser = async (userData) => {
+        const response = await apiClient.post("/Admin", userData);
+        return response;
+
+};
+
+
+export const addCategory = async (categoryData) => {
+  try{
+      const response = await apiClient.post('Category', categoryData);
+      return response.data;
+  } catch(error) {
+      throw {
+          message: error.response?.data?.message || 'An unexpected error occurred',
+          status: error.response?.status || 500,
+        };
+  }
+}
+
+export const updateCategory = async (id, categoryData) => {
+  try{
+      const response = await apiClient.put('Category/${id}', categoryData);
+      return response.data;
+  } catch(error) {
+      throw {
+          message: error.response?.data?.message || 'An unexpected error occurred',
+          status: error.response?.status || 500,
+      }
+  }
+}
+
+export const deleteCategory = async (id) => {
+  try {
+      const response = await apiClient.delete(`admin/categories/${id}`);
+      return response.data;
+  } catch(error) {
+      throw {
+          message: error.response?.data?.message || 'An unexpected error occurred',
+          status: error.response?.status || 500,
+      }
+  }
+}

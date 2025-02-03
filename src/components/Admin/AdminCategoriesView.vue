@@ -10,7 +10,7 @@
   <script>
   import CategoryTable from "@/components/Admin/CategoryTable.vue";
   import CategoryForm from "@/components/Admin/CategoryForm.vue";
-  import { getCategories, addCategory, updateCategory, deleteCategory } from "@/api/categoryApi";
+  import { fetchCategories, addCategory, updateCategory, deleteCategory } from "@/api/api";
   
   export default {
     components: { CategoryTable, CategoryForm },
@@ -23,7 +23,7 @@
     methods: {
       async fetchCategories() {
         try {
-          this.categories = await getCategories();
+          this.categories = await fetchCategories();
         } catch (error) {
           console.error("Błąd podczas pobierania kategorii:", error);
         }

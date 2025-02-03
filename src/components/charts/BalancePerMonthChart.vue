@@ -64,36 +64,37 @@ export default {
           ],
         },
         options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "top",
-            },
-          },
-          scales: {
-            x: {
-              stacked: true,
-              title: {
-                display: true,
-                text: "Miesiące",
-              },
-            },
-            y: {
-              stacked: true,
-              beginAtZero: true,
-              suggestedMax: Math.max(...incomeData, ...expensesData.map((v) => Math.abs(v))) * 1.2,
-              title: {
-                display: true,
-                text: "Kwota (PLN)",
-              },
-              ticks: {
-                callback: function (value) {
-                  return `${value} zł`; // Formatowanie osi Y
-                },
-              },
-            },
-          },
+  responsive: true,
+  maintainAspectRatio: false, // Wyłącz domyślne proporcje
+  plugins: {
+    legend: {
+      position: "top",
+    },
+  },
+  scales: {
+    x: {
+      stacked: true,
+      title: {
+        display: true,
+        text: "Miesiące",
+      },
+    },
+    y: {
+      stacked: true,
+      beginAtZero: true,
+      suggestedMax: Math.max(...incomeData, ...expensesData.map((v) => Math.abs(v))) * 1.2,
+      title: {
+        display: true,
+        text: "Kwota (PLN)",
+      },
+      ticks: {
+        callback: function (value) {
+          return `${value} zł`; // Formatowanie osi Y
         },
+      },
+    },
+  },
+},
       });
     },
   },
@@ -107,7 +108,9 @@ export default {
   background: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
-  max-width: 100%;
+  max-width: 100%; /* Ustaw maksymalną szerokość */
+  display: flex;
+  flex-direction: column;
 }
 
 .balance-per-month h3 {
@@ -117,7 +120,14 @@ export default {
 
 canvas {
   display: block;
-  width: 100%;
-  height: 400px; /* Określ wysokość płótna */
+  width: 100%; /* Zajmuje całą szerokość kontenera */
+  height: 100%; /* Automatyczna wysokość */
+  aspect-ratio: 2 / 1; /* Proporcja szerokości do wysokości */
+}
+
+@media (max-width: 768px) {
+  canvas {
+    aspect-ratio: 1 / 1; /* Kwadratowy wykres na mniejszych ekranach */
+  }
 }
 </style>

@@ -4,6 +4,8 @@
       <button @click="navigateTo('/add-income')" class="add-goal-button income-button">Dodaj wpływ</button>
       <button @click="navigateTo('/add-expense')" class="add-goal-button expense-button">Dodaj wydatek</button>
       <button @click="navigateTo('/add-goal')" class="add-goal-button goal-button">Dodaj cel</button>
+    
+
     </div>
 
     <div class="dashboard-summary">
@@ -149,28 +151,34 @@ export default {
   text-align: center;
   flex: 1;
   margin: 0 10px;
-  background: #f9f9f9;
+  background: linear-gradient(to bottom, #ffffff, #f9f9f9);
   border: 1px solid #ddd;
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease; /* Animacja dla efektu hover */
+}
+
+.summary-item:hover {
+  transform: translateY(-5px); /* Efekt uniesienia */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .charts-container {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Minimum 300px szerokości */
+  gap: 20px; /* Przestrzeń między wykresami */
   margin-top: 20px;
 }
 
 .charts-container > * {
-  flex: 1;
-  max-width: calc(20% - 20px); /* Zmniejsz szerokość do 20% */
-  padding: 10px;
+  padding: 20px;
   background: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-height: 400px; /* Ograniczenie wysokości */
+  overflow: hidden; /* Zapobiega niekontrolowanemu przewijaniu */
 }
 
 .dashboard-lists {

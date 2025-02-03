@@ -26,7 +26,7 @@
   </template>
   
   <script>
-  import { addUser } from "@/api/adminApi";
+  import { addUser } from "@/api/api";
   
   export default {
     data() {

@@ -39,45 +39,57 @@
             ],
           },
           options: {
-            responsive: true,
-            maintainAspectRatio: false, // Wyłączenie domyślnego stosunku proporcji
-            plugins: {
-              legend: {
-                position: "top",
-              },
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    const value = context.raw;
-                    return `Bilans: ${value.toLocaleString("pl-PL", {
-                      style: "currency",
-                      currency: "PLN",
-                    })}`;
-                  },
-                },
-              },
-            },
-            scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: "Miesiące",
-                },
-              },
-              y: {
-                beginAtZero: false,
-                title: {
-                  display: true,
-                  text: "Kwota (PLN)",
-                },
-                ticks: {
-                  callback: function (value) {
-                    return `${value} zł`;
-                  },
-                },
-              },
-            },
-          },
+  responsive: true,
+  maintainAspectRatio: false, // Wyłączenie domyślnego stosunku proporcji
+  plugins: {
+    legend: {
+      position: "top",
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const value = context.raw;
+          return `Bilans: ${value.toLocaleString("pl-PL", {
+            style: "currency",
+            currency: "PLN",
+          })}`;
+        },
+      },
+    },
+  },
+  layout: {
+    padding: {
+      bottom: 30, // Dodaj dodatkowe miejsce na etykiety osi X
+    },
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: "Miesiące",
+      },
+      ticks: {
+        maxRotation: 45, // Ustaw maksymalny kąt obrotu etykiet
+        minRotation: 0,
+        padding: 15, // Dodaj przestrzeń między osią a etykietami
+      },
+    },
+    y: {
+      beginAtZero: false,
+      title: {
+        display: true,
+        text: "Kwota (PLN)",
+      },
+      ticks: {
+        callback: function (value) {
+          return `${value} zł`;
+        },
+      },
+    },
+  },
+}
+
+,
         });
       } catch (error) {
         console.error("Błąd przy pobieraniu trendów miesięcznych:", error.message);
@@ -87,31 +99,34 @@
   </script>
   
   <style scoped>
-  .chart-container {
-    margin-top: 20px;
-    padding: 20px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    height: 400px; /* Stała wysokość */
-    max-width: 100%; /* Szerokość dopasowana do kontenera */
-    overflow: hidden; /* Ukrycie nadmiarowego elementu */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Rozkłada zawartość równomiernie */
-  }
+.chart-container {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 400px; /* Ustaw wysokość kontenera */
+  max-width: 100%; /* Dopasowanie do szerokości */
+  overflow: hidden; /* Ukrycie nadmiarowych elementów */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
   
   .chart-container h3 {
     margin-bottom: 10px;
-    font-size: 18px;
     text-align: center;
   }
   
   canvas {
-    display: block;
-    width: 100%;
-    height: calc(100% - 40px); /* Ustal wysokość płótna bez nagłówka */
-  }
+  display: block;
+  width: 100%;
+  height: calc(100% - 40px); /* Zarezerwuj więcej miejsca na etykiety osi X */
+}
+  @media (max-width: 768px) {
+      canvas {
+        aspect-ratio: 1 / 1; /* Kwadratowy wykres na mniejszych ekranach */
+      }
+    }
   </style>
-  

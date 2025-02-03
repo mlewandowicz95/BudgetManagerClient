@@ -78,7 +78,7 @@
 import UserTable from "@/components/Admin/UserTable.vue";
 import UserForm from "@/components/Admin/UserForm.vue";
 import AddUserForm from "@/components/Admin/AddUserForm.vue";
-import { getAllUsers, updateUser, deleteUser } from "@/api/adminApi";
+import { getAllUsers, deleteUser, updateUser } from "@/api/api";
 
 export default {
   components: { UserTable, UserForm, AddUserForm },
@@ -108,14 +108,15 @@ export default {
     async fetchUsers() {
       try {
         const params = {
-          roles: this.filters.roles.includes("All") ? null : this.filters.roles,
-          isActive: this.filters.isActive,
-          page: this.currentPage,
-          pageSize: this.pageSize,
-          sortBy: this.sortBy,
-          sortOrder: this.sortOrder,
-        };
-        console.log("Wysyłane parametry: ", params);
+  roles: this.filters.roles.length === 0 || this.filters.roles.includes("All") ? null : this.filters.roles.join(","),
+  isActive: this.filters.isActive,
+  page: this.currentPage,
+  pageSize: this.pageSize,
+  sortBy: this.sortBy,
+  sortOrder: this.sortOrder,
+};
+
+        console.log("Wysyłane parametry (przed API call):", JSON.stringify(params));
         const response = await getAllUsers(params);
         this.users = response.items;
         this.totalPages = response.totalPages;

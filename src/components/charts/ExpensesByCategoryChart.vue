@@ -92,18 +92,31 @@
   
   <style scoped>
   .chart-container {
-    text-align: center;
     margin-top: 20px;
     padding: 15px;
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
+    max-width: 100%; /* Ustaw maksymalną szerokość */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chart-container h3 {
+    margin-bottom: 20px;
+    text-align: center;
   }
   
   canvas {
-    max-width: 100%;
-    height: 400px; /* Możesz dostosować wysokość */
     display: block;
+    width: 100%; /* Zajmuje całą szerokość kontenera */
+    height: 100%; /* Automatyczna wysokość */
+    aspect-ratio: 2 / 1; /* Proporcja szerokości do wysokości */
+  }
+
+  @media (max-width: 768px) {
+    canvas {
+      aspect-ratio: 1 / 1; /* Kwadratowy wykres na mniejszych ekranach */
+    }
   }
   </style>
-  
