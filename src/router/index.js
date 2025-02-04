@@ -1,10 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useUserStore } from "@/stores/userStore";
 
-//import AppLayout from '@/layouts/AppLayout.vue';
+// Importowanie widoków
 import HomeView from '@/views/HomeView.vue';
-import LoginView from '@/views/LoginView.vue';
-import RegisterView from '@/views/RegisterView.vue';
 import DashboardView from '@/views/DashboardView.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import ProfileView from "@/views/ProfileView.vue";
@@ -16,7 +14,7 @@ import AddExpenseForm from '@/components/AddExpenseForm.vue';
 import AddGoalForm from '@/components/AddGoalForm.vue';
 import ConfirmEmailChangeView from '@/components/ConfirmEmailChangeView.vue';
 import ResetPasswordView from '@/components/ResetPasswordView.vue';
-
+import AddMonthlyBudgetForm from '@/components/AddMonthlyBudget.Form.vue';
 
 const routes = [
   {
@@ -24,34 +22,18 @@ const routes = [
     name: "Home",
     component: HomeView,
     meta: { requiresAuth: false },
-
-  },
-  {
-    path: '/login',
-    redirect: '/',
-    name: 'Login',
-    component: LoginView,
-    meta: { requiresAuth: false },
   },
   {
     path: "/reset-password",
     name: "ResetPassword",
     component: ResetPasswordView,
-    props: (route) => ({ token: route.query.token }), // Przekazuje token jako prop
-  },
-  
-  {
-    path: '/register',
-    redirect: '/',
-    name: 'Register',
-    component: RegisterView,
-    meta: { requiresAuth: false },
+    props: (route) => ({ token: route.query.token }),
   },
   {
-    path: '/dashboard',
+    path: "/dashboard",
     component: AppLayout,
-    meta: {requiresAuth: true },
-    children : [
+    meta: { requiresAuth: true },
+    children: [
       {
         path: "",
         name: "Dashboard",
@@ -60,9 +42,9 @@ const routes = [
     ]
   },
   {
-    path: '/add-income',
+    path: "/add-income",
     component: AppLayout,
-    meta: {requiresAuth: true },
+    meta: { requiresAuth: true },
     children: [
       {
         path: "",
@@ -72,9 +54,9 @@ const routes = [
     ]
   },
   {
-    path: '/add-expense',
+    path: "/add-expense",
     component: AppLayout,
-    meta: {requiresAuth: true },
+    meta: { requiresAuth: true },
     children: [
       {
         path: "",
@@ -84,9 +66,21 @@ const routes = [
     ]
   },
   {
-    path: '/add-goal',
+    path: '/edit-expense/:id',
     component: AppLayout,
-    meta: {requiresAuth: true },
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "",
+        name: "EditExpense",
+        component: AddExpenseForm,
+      }
+    ]
+  },
+  {
+    path: "/add-goal",
+    component: AppLayout,
+    meta: { requiresAuth: true },
     children: [
       {
         path: "",
@@ -96,9 +90,21 @@ const routes = [
     ]
   },
   {
-    path: '/profile',
+    path: "/add-budget",
     component: AppLayout,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "",
+        name: "AddBudget",
+        component: AddMonthlyBudgetForm,
+      }
+    ]
+  },
+  {
+    path: "/profile",
+    component: AppLayout,
+    meta: { requiresAuth: true },
     children: [
       {
         path: "",
@@ -111,12 +117,12 @@ const routes = [
     path: "/confirm-email-change",
     name: "ConfirmEmailChange",
     component: ConfirmEmailChangeView,
-    props: (route) => ({ token: route.query.token }), // Token przekazywany z query
+    props: (route) => ({ token: route.query.token }),
   },
   {
-    path: '/history',
+    path: "/history",
     component: AppLayout,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
     children: [
       {
         path: "",
@@ -126,9 +132,9 @@ const routes = [
     ]
   },
   {
-    path: '/settings',
+    path: "/settings",
     component: AppLayout,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
     children: [
       {
         path: "",
@@ -138,9 +144,9 @@ const routes = [
     ]
   },
   {
-    path: '/admin',
+    path: "/admin",
     component: AppLayout,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true, requiresAdmin: true }, // Dodana ochrona dla Adminów
     children: [
       {
         path: "",
@@ -149,35 +155,48 @@ const routes = [
       }
     ]
   },
+  // 🔹 Przekierowanie /login i /register na stronę główną
   {
-    path: '/:pathMatch(.*)*', // Obsługa nieistniejących ścieżek
-    redirect: '/', // Przekierowanie na stronę główną
+    path: "/login",
+    redirect: "/",
+  },
+  {
+    path: "/register",
+    redirect: "/",
+  },
+  // 🔹 Obsługa błędnych tras – przekierowanie na stronę główną
+  {
+    path: "/:pathMatch(.*)*",
+    redirect: "/",
   },
 ];
 
+
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
+  const token = userStore.token || localStorage.getItem("jwtToken");
 
-
-  if (!userStore.isAuthenticated) {
-    userStore.initializeUser();
+  if (!userStore.isAuthenticated && token) {
+    await userStore.initializeUser();
   }
 
- 
-  if (userStore.isAuthenticated && (to.name === "Home" || to.name === "Login" || to.name === "Register")) {
+  if (userStore.isAuthenticated && (to.name === "Home" || to.path === "/login" || to.path === "/register")) {
     return next({ name: "Dashboard" });
   }
 
-  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-    return next({ name: "Login" });
+  if (to.meta.requiresAuth && !token) {
+    return next({ name: "Home" });
   }
 
-  
+  if (to.meta.requiresAdmin && !userStore.isAdmin) {
+    return next({ name: "Dashboard" });
+  }
+
   next();
 });
 

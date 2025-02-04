@@ -4,8 +4,7 @@
       <button @click="navigateTo('/add-income')" class="add-goal-button income-button">Dodaj wpływ</button>
       <button @click="navigateTo('/add-expense')" class="add-goal-button expense-button">Dodaj wydatek</button>
       <button @click="navigateTo('/add-goal')" class="add-goal-button goal-button">Dodaj cel</button>
-    
-
+      <button @click="navigateTo('/add-budget')" class="add-goal-button goal-button">Dodaj miesięczny budżet</button>
     </div>
 
     <div class="dashboard-summary">
@@ -14,25 +13,28 @@
       <SummaryItem title="Bilans" :value="balance" color="#333" />
       <SummaryItem title="Okres" :value="currentMonth" />
     </div>
+
+    <div class="dashboard-lists">
+      <TransactionList
+        :transactions="dashboardData.recentTransactions"
+        @deleteTransaction="handleDeleteTransaction"
+      />
+      <SavingGoalsList :goals="dashboardData.savingGoals" />
+    </div>
+
     <div class="charts-container">
       <BalancePerMonth />
       <ExpensesByCategoryChart />
       <MonthlyTrendsChart />
     </div>
 
-
     <FinancialIndicators />
     <BudgetForecast />
-
-    <div class="dashboard-lists">
-      <TransactionList :transactions="dashboardData.recentTransactions" />
-      <SavingGoalsList :goals="dashboardData.savingGoals" /> 
-    </div>
   </div>
 </template>
 
 <script>
-import { fetchDashboardData } from "@/api/api";
+import { fetchDashboardData, deleteTransaction } from "@/api/api"; // Import funkcji API
 import ErrorCodes from "@/constants/errorCodes";
 import SummaryItem from "@/components/SummaryItem.vue";
 import TransactionList from "@/components/TransactionList.vue";
@@ -53,7 +55,7 @@ export default {
     SavingGoalsList,
     BalancePerMonth,
     ExpensesByCategoryChart,
-    MonthlyTrendsChart
+    MonthlyTrendsChart,
   },
   data() {
     return {
@@ -96,9 +98,25 @@ export default {
     navigateTo(route) {
       this.$router.push(route);
     },
+    async handleDeleteTransaction(transactionId) {
+      try {
+        const confirmDelete = confirm("Czy na pewno chcesz usunąć tę transakcję?");
+        if (!confirmDelete) return;
+
+        await deleteTransaction(transactionId); // Wywołanie API
+        this.dashboardData.recentTransactions = this.dashboardData.recentTransactions.filter(
+          (transaction) => transaction.id !== transactionId
+        );
+        alert("Transakcja została pomyślnie usunięta.");
+      } catch (error) {
+        console.error("Błąd podczas usuwania transakcji:", error.message);
+        alert("Nie udało się usunąć transakcji. Spróbuj ponownie później.");
+      }
+    },
   },
 };
 </script>
+
 
 
 <style scoped>

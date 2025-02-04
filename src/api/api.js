@@ -83,14 +83,33 @@ export const fetchCategories = async () =>{
   return response;
 }
 
+export const updateTransaction = async (transactionId, transactionData) => {
+  return await apiClient.put(`/Transaction/${transactionId}`, transactionData);
+};
+
+export const deleteTransaction = async (transactionId) => {
+  if (!transactionId) {
+    throw new Error("Brak ID transakcji do usunięcia.");
+  }
+  return await apiClient.delete(`/Transaction/${transactionId}`);
+};
+
+export const getTransactionById = async (transactionId) => {
+  return await apiClient.get(`/Transaction/${transactionId}`);
+};
+
 export const fetchGoals = async () => {
   const response = await apiClient.get('/Goal');
-  console.log("Odpowiedź z API (fetchGoals):", response);
+  //console.log("Odpowiedź z API (fetchGoals):", response);
   return response;
 }
 
 export const addGoal = async (goalData) => {
   return await apiClient.post('/Goal', goalData);
+}
+
+export const addMonthlyBudget = async (budgetData) => {
+  return await apiClient.post('/MonthlyBudget', budgetData);
 }
 
 export const fetchUserProfile = async () => {
@@ -118,7 +137,7 @@ export const getConfirmEmailChange = async (token) => {
 export const getAllTransaction = async (params) => {
     const response = await apiClient.get('Transaction', { params });
 
-    console.log("API Response(getAllTransaction): ", response);
+   // console.log("API Response(getAllTransaction): ", response);
     return response;
 };
 
@@ -142,7 +161,7 @@ export const deleteUser = async (id) => {
 
 export const updateUser = async (id, userData) => {
     const response = await apiClient.put(`/Admin/${id}`, userData);
-    console.log("Użytkownik zaktualizowany:", response);
+   // console.log("Użytkownik zaktualizowany:", response);
     return response; // Zwracaj dane w przypadku sukcesu
 };
   

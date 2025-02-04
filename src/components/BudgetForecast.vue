@@ -36,7 +36,7 @@
     async created() {
       try {
         const data = await getBudgetForecast();
-        console.log("Odpowiedź API w BudgetForecast:", data);
+       // console.log("Odpowiedź API w BudgetForecast:", data);
   
         this.forecast = {
           predicatedIncome: data.predicatedIncome || 0,

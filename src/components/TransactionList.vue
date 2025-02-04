@@ -8,25 +8,23 @@
           <th>Kategoria</th>
           <th>Opis</th>
           <th>Kwota</th>
+          <th>Akcje</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="transactions.length === 0">
-          <td colspan="4" class="no-transactions">Brak ostatnich transakcji</td>
+          <td colspan="5" class="no-transactions">Brak ostatnich transakcji</td>
         </tr>
-        <tr 
-          v-else 
-          v-for="(transaction, index) in transactions" 
-          :key="index"
-        >
+        <tr v-else v-for="(transaction, index) in transactions" :key="index">
           <td class="date">{{ formatDate(transaction.date) }}</td>
           <td class="category">{{ transaction.categoryName }}</td>
           <td class="description">{{ transaction.description }}</td>
-          <td 
-            class="amount" 
-            :class="getAmountClass(transaction.type)"
-          >
+          <td class="amount" :class="getAmountClass(transaction.type)">
             {{ formatAmount(transaction.amount, transaction.type) }}
+          </td>
+          <td class="actions">
+            <button @click="editTransaction(transaction)" class="edit-btn">Edytuj</button>
+            <button @click="deleteTransaction(transaction.id)" class="delete-btn">Usuń</button>
           </td>
         </tr>
       </tbody>
@@ -62,6 +60,20 @@ export default {
       });
       return type === "Expense" ? `-${formatted}` : formatted;
     },
+    editTransaction(transaction) {
+      this.$router.push({ name: "EditExpense", params: { id: transaction.id } });
+}
+,
+    async deleteTransaction(transactionId) {
+  try {
+    const confirmDelete = confirm("Czy na pewno chcesz usunąć tę transakcję?");
+    if (confirmDelete) {
+      await this.$emit("deleteTransaction", transactionId); // Emituj event do rodzica
+    }
+  } catch (error) {
+    console.error("Błąd podczas usuwania transakcji:", error.message);
+  }
+},
   },
 };
 </script>
@@ -115,6 +127,39 @@ export default {
   font-style: italic;
   color: #888;
   padding: 12px 15px;
+}
+
+.actions {
+  display: flex;
+  gap: 5px;
+}
+
+.edit-btn {
+  padding: 5px 10px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-btn:hover {
+  background-color: #1e88e5;
+}
+
+.delete-btn {
+  padding: 5px 10px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
 }
 
 @media (max-width: 768px) {
