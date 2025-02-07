@@ -78,6 +78,19 @@ const routes = [
     ]
   },
   {
+    path: "/edit-income/:id",
+    component: AppLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "",  // To poprawna definicja dla child-routingu!
+        name: "EditIncome",
+        component: AddIncomeForm,
+        props: true
+      }
+    ]
+  },
+  {
     path: "/add-goal",
     component: AppLayout,
     meta: { requiresAuth: true },

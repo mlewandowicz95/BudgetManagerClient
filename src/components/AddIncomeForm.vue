@@ -1,118 +1,116 @@
 <template>
-    <div class="add-income-form">
-      <h2>Dodaj wpływ</h2>
-      <form @submit.prevent="submitForm">
-        <div class="form-group">
-          <label for="amount">Kwota</label>
-          <input
-            type="number"
-            id="amount"
-            v-model="form.amount"
-            placeholder="Wprowadź kwotę"
-            required
-          />
-        </div>
-  
-        <div class="form-group">
-          <label for="category">Kategoria</label>
-          <select id="category" v-model="form.categoryId" required>
-            <option value="" disabled>Wybierz kategorię</option>
-            <option
-              v-for="category in categories"
-              :key="category.id"
-              :value="category.id"
-            >
-              {{ category.name }}
-            </option>
-          </select>
-        </div>
-  
-        <div class="form-group">
-          <label for="description">Opis</label>
-          <textarea
-            id="description"
-            v-model="form.description"
-            placeholder="Dodaj opis (opcjonalnie)"
-          ></textarea>
-        </div>
-  
-        <div class="form-group">
-          <label for="date">Data</label>
-          <input type="date" id="date" v-model="form.date" required />
-        </div>
-  
-        <div class="form-group">
-          <label>
-            <input type="checkbox" v-model="form.isRecurring" />
-            Powtarzający się wpływ
-          </label>
-        </div>
-  
-        <button type="submit" class="submit-button">Dodaj wpływ</button>
-      </form>
-    </div>
-  </template>
-  
-  <script>
-  import { addTransaction } from "@/api/api"; // Funkcja do wysyłania żądania POST
-  import { fetchCategories } from "@/api/api"; // Funkcja do pobrania kategorii
-  import { jwtDecode } from "jwt-decode";
+  <div class="add-income-form">
+    <h2>{{ isEditing ? "Edytuj Wpływ" : "Dodaj Wpływ" }}</h2>
+    <form @submit.prevent="submitForm">
+      <div class="form-group">
+        <label for="amount">Kwota</label>
+        <input type="number" id="amount" v-model="form.amount" placeholder="Wprowadź kwotę" required />
+      </div>
 
+      <div class="form-group">
+        <label for="category">Kategoria</label>
+        <select id="category" v-model="form.categoryId" required>
+          <option value="" disabled>Wybierz kategorię</option>
+          <option v-for="category in categories" :key="category.id" :value="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
 
-  
-  export default {
-    name: "AddIncomeForm",
-    data() {
-      return {
-        form: {
-          amount: "",
-          categoryId: "",
-          description: "",
-          isRecurring: false,
-          date: new Date().toISOString().split("T")[0], // Domyślnie dzisiejsza data
-        },
-        categories: [], // Kategorie dla wyboru
-      };
-    },
-    async created() {
+      <div class="form-group">
+        <label for="description">Opis</label>
+        <textarea id="description" v-model="form.description" placeholder="Dodaj opis (opcjonalnie)"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="date">Data</label>
+        <input type="date" id="date" v-model="form.date" required />
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" v-model="form.isRecurring" />
+          Powtarzający się wpływ
+        </label>
+      </div>
+
+      <button type="submit" class="submit-button">{{ isEditing ? "Zapisz zmiany" : "Dodaj Wpływ" }}</button>
+    </form>
+  </div>
+</template>
+
+<script>
+import { fetchCategories, getTransactionById, addTransaction, updateTransaction } from "@/api/api";
+import { useUserStore } from "@/stores/userStore";
+
+export default {
+  name: "AddIncomeForm",
+  data() {
+    return {
+      form: {
+        amount: "",
+        categoryId: "",
+        description: "",
+        isRecurring: false,
+        date: new Date().toISOString().split("T")[0],
+      },
+      categories: [],
+      userStore: useUserStore(),
+      isEditing: false, // <-- DODANE
+    };
+  },
+  async created() {
+    try {
+      this.categories = await fetchCategories();
+
+      if (this.$route.params.id) {
+        this.isEditing = true; // <-- Ustawiamy tryb edycji
+        console.log("Pobieram transakcję dla ID:", this.$route.params.id);
+        const response = await getTransactionById(this.$route.params.id);
+
+        console.log("Dane transakcji:", response);
+
+        // Konwersja daty do YYYY-MM-DD dla <input type="date">
+        if (response.date) {
+          response.date = response.date.split("T")[0];
+        }
+
+        this.form = { ...response };
+      }
+    } catch (error) {
+      console.error("Błąd pobierania danych:", error);
+    }
+  },
+  methods: {
+    async submitForm() {
       try {
-        this.categories = await fetchCategories();
+        const payload = {
+          userId: this.userStore.user.id,
+          amount: parseFloat(this.form.amount),
+          categoryId: parseInt(this.form.categoryId),
+          description: this.form.description,
+          isRecurring: this.form.isRecurring,
+          type: "Income",
+          date: this.form.date,
+        };
+
+        if (this.isEditing) {
+          await updateTransaction(this.$route.params.id, payload);
+          console.log("Wpływ zaktualizowany!");
+        } else {
+          await addTransaction(payload);
+          console.log("Nowy wpływ dodany!");
+        }
+
+        this.$router.push("/dashboard");
       } catch (error) {
-        console.error("Nie udało się pobrać kategorii:", error.message);
+        console.error("Błąd operacji:", error.message);
       }
     },
-    methods: {
-        async submitForm() {
-  try {
-    console.log(typeof jwtDecode); // powinno wyświetlić "function"
-    const token = localStorage.getItem("jwtToken");
-    if (!token) {
-      throw new Error("Nie znaleziono tokenu JWT.");
-    }
-    const decodedToken = jwtDecode(token);
-    const userId = parseInt(decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]);
+  },
+};
+</script>
 
-    const payload = {
-      userId: userId,
-      amount: parseFloat(this.form.amount),
-      categoryId: parseInt(this.form.categoryId),
-      description: this.form.description,
-      isRecurring: this.form.isRecurring,
-      type: "Income",
-      date: this.form.date,
-    };
-
-    const response = await addTransaction(payload);
-    console.log("Dodano transakcję:", response);
-    this.$router.push("/dashboard"); // Przekierowanie po sukcesie
-  } catch (error) {
-    console.error("Wystąpił błąd:", error.message);
-    this.errorMessage = error.message || "Wystąpił błąd. Spróbuj ponownie później.";
-  }
-},
-    },
-  };
-  </script>
   
   <style scoped>
   .add-income-form {

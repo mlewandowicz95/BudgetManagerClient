@@ -60,20 +60,25 @@ export default {
       });
       return type === "Expense" ? `-${formatted}` : formatted;
     },
+
     editTransaction(transaction) {
-      this.$router.push({ name: "EditExpense", params: { id: transaction.id } });
-}
-,
+      if (transaction.type === "Income") {
+        this.$router.push({ name: "EditIncome", params: { id: transaction.id } });
+      } else {
+        this.$router.push({ name: "EditExpense", params: { id: transaction.id } });
+      }
+    },
+
     async deleteTransaction(transactionId) {
-  try {
-    const confirmDelete = confirm("Czy na pewno chcesz usunąć tę transakcję?");
-    if (confirmDelete) {
-      await this.$emit("deleteTransaction", transactionId); // Emituj event do rodzica
-    }
-  } catch (error) {
-    console.error("Błąd podczas usuwania transakcji:", error.message);
-  }
-},
+      try {
+        const confirmDelete = confirm("Czy na pewno chcesz usunąć tę transakcję?");
+        if (confirmDelete) {
+          await this.$emit("deleteTransaction", transactionId);
+        }
+      } catch (error) {
+        console.error("Błąd podczas usuwania transakcji:", error.message);
+      }
+    },
   },
 };
 </script>
@@ -134,9 +139,10 @@ export default {
   gap: 5px;
 }
 
+
 .edit-btn {
   padding: 5px 10px;
-  background-color: #2196f3;
+  background-color: #2196f3; 
   color: white;
   border: none;
   border-radius: 4px;
@@ -150,7 +156,7 @@ export default {
 
 .delete-btn {
   padding: 5px 10px;
-  background-color: #f44336;
+  background-color: #f44336; 
   color: white;
   border: none;
   border-radius: 4px;
@@ -162,13 +168,28 @@ export default {
   background-color: #d32f2f;
 }
 
+
 @media (max-width: 768px) {
   .transaction-list table {
     font-size: 12px;
   }
+
   .transaction-list td,
   .transaction-list th {
     padding: 8px 10px;
   }
+
+  .actions {
+    display: flex;
+    flex-direction: column; 
+    gap: 5px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    width: 100%; 
+    text-align: center;
+  }
 }
+
 </style>
