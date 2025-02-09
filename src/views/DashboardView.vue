@@ -4,7 +4,7 @@
       <button @click="navigateTo('/add-income')" class="add-goal-button income-button">Dodaj wpływ</button>
       <button @click="navigateTo('/add-expense')" class="add-goal-button expense-button">Dodaj wydatek</button>
       <button @click="navigateTo('/add-goal')" class="add-goal-button goal-button">Dodaj cel</button>
-      <button @click="navigateTo('/add-budget')" class="add-goal-button goal-button">Dodaj miesięczny budżet</button>
+      <button v-if="!isUser" @click="navigateTo('/add-budget')" class="add-goal-button goal-button">Dodaj miesięczny budżet</button>
     </div>
 
     <div class="dashboard-summary">
@@ -19,7 +19,7 @@
         :transactions="dashboardData.recentTransactions"
         @deleteTransaction="handleDeleteTransaction"
       />
-      <SavingGoalsList :goals="dashboardData.savingGoals" />
+      <SavingGoalsList :goals="dashboardData.savingGoals" @deleteGoal="handleDeleteGoal" />
     </div>
 
     <div class="charts-container">
@@ -34,7 +34,9 @@
 </template>
 
 <script>
-import { fetchDashboardData, deleteTransaction } from "@/api/api"; // Import funkcji API
+import { fetchDashboardData, deleteTransaction, deleteGoal } from "@/api/api"; // Import funkcji API
+import { useUserStore } from "@/stores/userStore";  // 👈 Import Pinia
+import { computed } from "vue"; // Import computed
 import ErrorCodes from "@/constants/errorCodes";
 import SummaryItem from "@/components/SummaryItem.vue";
 import TransactionList from "@/components/TransactionList.vue";
@@ -56,6 +58,12 @@ export default {
     BalancePerMonth,
     ExpensesByCategoryChart,
     MonthlyTrendsChart,
+  },
+  setup() {
+    const userStore = useUserStore();  // 👈 Pobranie store użytkownika
+    const isUser = computed(() => userStore.isUser);  // 👈 Sprawdzenie roli
+
+    return { isUser };  // 👈 Eksportujemy do template
   },
   data() {
     return {
@@ -82,6 +90,7 @@ export default {
       });
 
       const response = await fetchDashboardData();
+      console.log("Dane z API (cele oszczędnościowe):", response.savingGoals);
       this.dashboardData = response;
     } catch (error) {
       this.handleApiError(error);
@@ -98,12 +107,20 @@ export default {
     navigateTo(route) {
       this.$router.push(route);
     },
+    async handleDeleteGoal(goalId) {
+      try {
+        console.log("Usuwam w dashboard..");
+        await deleteGoal(goalId);
+        this.dashboardData.savingGoals = this.dashboardData.savingGoals.filter(goal => goal.id !== goalId);
+        alert("Cel został pomyślnie usunięty.");
+      } catch (error) {
+        console.error("Błąd podczas usuwania celu:", error.message);
+        alert("Nie udało się usunąć celu. Spróbuj ponownie później.");
+      }
+    },
     async handleDeleteTransaction(transactionId) {
       try {
-        const confirmDelete = confirm("Czy na pewno chcesz usunąć tę transakcję?");
-        if (!confirmDelete) return;
-
-        await deleteTransaction(transactionId); // Wywołanie API
+        await deleteTransaction(transactionId);
         this.dashboardData.recentTransactions = this.dashboardData.recentTransactions.filter(
           (transaction) => transaction.id !== transactionId
         );

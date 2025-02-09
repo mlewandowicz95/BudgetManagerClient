@@ -104,9 +104,25 @@ export const fetchGoals = async () => {
   return response;
 }
 
+export const fetchGoalById = async (goalId) => {
+  const response = await apiClient.get(`/Goal/${goalId}`);
+  return response;
+};
+
 export const addGoal = async (goalData) => {
   return await apiClient.post('/Goal', goalData);
 }
+
+export const updateGoal = async (goalId, goalData) => {
+  return await apiClient.put(`/Goal/${goalId}`, goalData);
+};
+
+export const deleteGoal = async (deleteId) => {
+  if (!deleteId) {
+    throw new Error("Brak ID celu do usunięcia.");
+  }
+  return await apiClient.delete(`/Goal/${deleteId}`);
+};
 
 export const addMonthlyBudget = async (budgetData) => {
   return await apiClient.post('/MonthlyBudget', budgetData);

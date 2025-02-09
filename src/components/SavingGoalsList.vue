@@ -3,17 +3,18 @@
     <h3>Cele oszczędnościowe</h3>
     <ul v-if="filteredGoals.length > 0">
       <li v-for="(goal, index) in filteredGoals" :key="index">
-        <div class="goal-details">
+        <div class="goal-details" @click="editGoal(goal)">
           <h4>{{ goal.name }}</h4>
+          <p><strong>ID:</strong> {{ goal.id || 'Brak ID' }}</p>
           <p><strong>Do zebrania:</strong> {{ formatCurrency(goal.targetAmount) }}</p>
           <p><strong>Zaoszczędzono:</strong> {{ formatCurrency(goal.currentProgress) }}</p>
           <p><strong>Data wygaśnięcia:</strong> {{ formatDate(goal.dueDate) }}</p>
           <p><strong>Progres:</strong> {{ goal.progressPercentage }}%</p>
+          <progress :value="goal.currentProgress" :max="goal.targetAmount"></progress>
         </div>
-        <progress
-          :value="goal.currentProgress"
-          :max="goal.targetAmount"
-        ></progress>
+        <div class="goal-actions">
+          <button @click.stop="deleteGoal(goal.id)" class="delete-btn">Usuń</button>
+        </div>
       </li>
     </ul>
     <p v-else>Brak utworzonych celi.</p>
@@ -21,6 +22,7 @@
 </template>
 
 <script>
+
 export default {
   name: "SavingGoalsList",
   props: {
@@ -31,11 +33,10 @@ export default {
   },
   computed: {
     filteredGoals() {
-      // Sortowanie celów według daty wygaśnięcia, a następnie ograniczenie do 3 najbliższych
       return this.goals
-        .filter((goal) => goal.dueDate) // Uwzględnij tylko cele z datą
-        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)) // Sortowanie rosnące według daty
-        .slice(0, 3); // Pobierz pierwsze 3 cele
+        .filter((goal) => goal.dueDate)
+        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+        .slice(0, 3);
     },
   },
   methods: {
@@ -54,6 +55,29 @@ export default {
         currency: "PLN",
       });
     },
+    editGoal(goal) {
+      console.log("Edycja celu, ID:", goal.id, typeof goal.id);
+      if (!goal.id) {
+        console.error("BŁĄD: Brak goal.id!");
+        return;
+      }
+      this.$router.push({ name: "EditGoal", params: { id: Number(goal.id) } });
+    },
+    async deleteGoal(goalId) {
+  console.log("Próba usunięcia celu, ID:", goalId);
+
+  const confirmDelete = confirm("Czy na pewno chcesz usunąć ten cel?");
+  if (!confirmDelete) return;
+
+  try {
+    console.log("Usuwam...");
+
+    this.$emit("deleteGoal", goalId); // Emituj event tylko po usunięciu
+  } catch (error) {
+    console.error("Błąd podczas usuwania celu:", error.message);
+    alert("Nie udało się usunąć celu. Spróbuj ponownie.");
+  }
+},
   },
 };
 </script>
@@ -74,6 +98,14 @@ export default {
   background: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
+  transition: background 0.3s ease, border 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Animacja */
+}
+
+.saving-goals-list li:hover {
+  background: #f9f8e8; /* Delikatne podświetlenie */
+  border: 1px solid #ccc; /* Jaśniejsza ramka */
+  transform: translateY(-3px); /* Minimalne podniesienie */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Lekki cień dla efektu unoszenia */
 }
 
 .goal-details h4 {
@@ -107,5 +139,20 @@ progress::-webkit-progress-value {
   text-align: center;
   color: #888;
   font-style: italic;
+}
+
+.delete-btn {
+  padding: 5px 10px;
+  background-color: #f44336; /* Czerwony jak w transakcjach */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 5px; 
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
 }
 </style>

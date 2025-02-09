@@ -20,21 +20,22 @@ export const useUserStore = defineStore('user', {
       this.user = null;
       this.tokenExpiry = null;
       localStorage.removeItem('jwtToken');
+      window.location.href = "/"; // Przekierowanie na stronę logowania
     },
 
     initializeUser() {
       const token = localStorage.getItem('jwtToken');
       if (token) {
         this.setToken(token);
-        console.log('Loaded token from localStorage:', token);
-        console.log('Decoded user data:', this.user);
+        console.log('Ładowanie tokenu z localStorage:', token);
+        console.log('Dekodowanie danych użytkownika', this.user);
 
         if (this.isTokenExpired()) {
           console.log("Token wygasł, następuje automatyczne wylogowanie...");
           this.logout();
         }
       } else {
-        console.log('No token found in localStorage.');
+        console.log('Brak tokenu w localStorage..');
       }
     },
 
@@ -71,5 +72,6 @@ export const useUserStore = defineStore('user', {
   getters: {
     isAuthenticated: (state) => !!state.token && !state.isTokenExpired(),
     isAdmin: (state) => state.user?.role === "Admin",
+    isUser: (state) => state.user?.role === "User",
   },
 });

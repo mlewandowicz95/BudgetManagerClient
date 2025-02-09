@@ -103,6 +103,18 @@ const routes = [
     ]
   },
   {
+    path: "/edit-goal/:id",
+    component: AppLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "",
+        name: "EditGoal",
+        component: AddGoalForm,
+      }
+    ]
+  },
+  {
     path: "/add-budget",
     component: AppLayout,
     meta: { requiresAuth: true },
